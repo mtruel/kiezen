@@ -1,0 +1,6 @@
+data/fr.truel.Kiezen.desktop.in
+data/fr.truel.Kiezen.metainfo.xml.in
+data/fr.truel.Kiezen.gschema.xml
+src/main.py
+src/window.py
+src/window.ui

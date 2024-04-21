@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=kiezen
+Exec=kiezen
+Icon=fr.truel.Kiezen
+Terminal=false
+Type=Application
+Categories=GTK;
+StartupNotify=true
