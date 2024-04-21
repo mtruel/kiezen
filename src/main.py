@@ -21,12 +21,13 @@ import sys
 import gi
 
 gi.require_version('Gtk', '4.0')
+gi.require_version('Adw', '1')
 
-from gi.repository import Gtk, Gio
+from gi.repository import Gtk, Gio, Adw
 from .window import KiezenWindow
 
 
-class KiezenApplication(Gtk.Application):
+class KiezenApplication(Adw.Application):
     """The main application singleton class."""
 
     def __init__(self):
@@ -51,11 +52,11 @@ class KiezenApplication(Gtk.Application):
         """Callback for the app.about action."""
         about = Gtk.AboutDialog(transient_for=self.props.active_window,
                                 modal=True,
-                                program_name='kiezen',
+                                program_name='Kiezen',
                                 logo_icon_name='fr.truel.Kiezen',
                                 version='0.1.0',
-                                authors=['mathias'],
-                                copyright='© 2024 mathias')
+                                authors=['Mathias Truel'],
+                                copyright='© 2024 Mathias Truel')
         about.present()
 
     def on_preferences_action(self, widget, _):

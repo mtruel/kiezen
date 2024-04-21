@@ -17,10 +17,11 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+from gi.repository import Adw
 from gi.repository import Gtk
 
 @Gtk.Template(resource_path='/fr/truel/Kiezen/window.ui')
-class KiezenWindow(Gtk.ApplicationWindow):
+class KiezenWindow(Adw.ApplicationWindow):
     __gtype_name__ = 'KiezenWindow'
 
     label = Gtk.Template.Child()
