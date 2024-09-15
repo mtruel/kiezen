@@ -10,10 +10,16 @@ Simple DJ software to manage a music library.
 - Play, pause
 ### Version 0.2
 - Load a folder (recursive ?)
+- Display the list of songs
 - Move buttons (To delete, to commercial...)
 - Progress in sound
+- Package the app (Flatpak, brew, chocolaty, exe)
 ### Version 0.3
 - Think about my workflowSound player in anticipation of the next versions 
+### Future improvments Player module 
+- Use a segment inside the callback function 
+- be able to play multiple tracks at the same time
+- Modify the track playback speed during playback
 ### Version 0.4
 - Edit and view song tags (artist, label, album, title, picture)
 - Add new music to the library
@@ -32,6 +38,25 @@ Simple DJ software to manage a music library.
 - Compatibility with other DJ softwares
 ### Version 0.9
 - Mark songs
+### Version 1.0
+
+
+## Links
+- [GTK4 Docs](https://rafaelmardojai.pages.gitlab.gnome.org/pygobject-guide/gtk4/introduction.html)
+- [Pygobject](https://gnome.pages.gitlab.gnome.org/pygobject/guide/api/index.html)
+- [GTK Reference](https://amolenaar.pages.gitlab.gnome.org/pygobject-docs/Gtk-4.0/class-FileDialog.html#gi.repository.Gtk.FileDialog)
+
+
+## Installation
+### Dependencies
+## Contribute
+> sudo dnf install gcc gobject-introspection-devel cairo-gobject-devel pkg-config python3-devel gtk4
+> sudo dnf install gtk4-devel
+
+
+
+
+
 
 ## Draft
 As a DJ I want : 

@@ -1,11 +1,14 @@
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
 [project]
 name = "dj-library-organizer"
-version = "0.0.1"
-dependencies = []
+version = "0.1.0"
+dependencies = [
+  "pycairo",
+  "pygobject",
+  "simpleaudio",
+  "pyaudio",
+  "pydub",
+  "setproctitle",
+]
 requires-python = ">=3.12"
 authors = [
   {name = "Mathias Truel", email = "mathias.truel@proton.me"},
