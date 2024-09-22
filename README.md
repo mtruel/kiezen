@@ -1,50 +1,50 @@
 # Dj Library Organizer
 Simple DJ software to manage a music library. 
 
+Listen to my music library.
+- Anywhere (Web, mobile, desktop)
+The library shoud be in sync with the folder used in my DJ software. 
+
+Depreciate old songs. They should be deleted or moved to a folder.
+
+Sync the playlist with the DJ software. 
+See DJ infos for the songs. (BPM, KEY, waveform?)
+
+Import newsongs easly. 
+Import newsongs from links (dummysong). play from the web ?? soundcloud spotify ..? 
+    Replace the dummy song with the real one when the file is obtained.
+
+Edit the tags? Genre ? 
+Star rating ? 
+Cues ? 
+Loop ?
+
+backup songs 
+
+
+
+
+
+
+
+
 ## Roadmap
 ### Version 0.0.1
 - Setup dev environment
 ### Version 0.1
-- GTK window
-- Load and play a sound (simple audio, librosa)
-- Play, pause
+
 ### Version 0.2
-- Load a folder (recursive ?)
-- Display the list of songs
-- Move buttons (To delete, to commercial...)
-- Progress in sound
-- Package the app (Flatpak, brew, chocolaty, exe)
 ### Version 0.3
-- Think about my workflowSound player in anticipation of the next versions 
-### Future improvments Player module 
-- Use a segment inside the callback function 
-- be able to play multiple tracks at the same time
-- Modify the track playback speed during playback
 ### Version 0.4
-- Edit and view song tags (artist, label, album, title, picture)
-- Add new music to the library
-- Depreciate old songs
-- Share feature
 ### Version 0.5
-- BPM and musical key of a track
-- Check audio quality with a spectrogram
-- See the waveform
 ### Version 0.6
-- Have playlists
 ### Version 0.7
-- Listen to my DJ library on the Go (Subsonic ?)
 ### Version 0.8
-- Export my files on my usb key (Compatible with Rekordbox)
-- Compatibility with other DJ softwares
 ### Version 0.9
-- Mark songs
 ### Version 1.0
 
 
 ## Links
-- [GTK4 Docs](https://rafaelmardojai.pages.gitlab.gnome.org/pygobject-guide/gtk4/introduction.html)
-- [Pygobject](https://gnome.pages.gitlab.gnome.org/pygobject/guide/api/index.html)
-- [GTK Reference](https://amolenaar.pages.gitlab.gnome.org/pygobject-docs/Gtk-4.0/class-FileDialog.html#gi.repository.Gtk.FileDialog)
 
 
 ## Installation

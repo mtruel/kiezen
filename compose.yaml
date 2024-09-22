@@ -1,0 +1,39 @@
+networks:
+  kiezen:
+    name: kiezen
+
+# https://hub.docker.com/r/bytemark/webdav
+version: '3'
+services:
+  webdav:
+    image: bytemark/webdav:2.4
+    restart: unless-stopped
+    ports:
+      - "4080:80"
+    environment:
+      AUTH_TYPE: Digest
+      USERNAME: mtruel
+      PASSWORD: password
+    volumes:
+      - ./volumes/webdav:/var/lib/dav
+    networks:
+      - kiezen
+
+  navidrome:
+    container_name: navidrome
+    image: deluan/navidrome:latest
+    restart: unless-stopped
+    environment:  
+      ND_SCANSCHEDULE: "@every 1m"
+      ND_LOGLEVEL: info  
+      ND_SESSIONTIMEOUT: 24h
+      ND_BASEURL: ""
+    volumes:
+      - "./volumes/navidrome:/data"
+      - "./volumes/webdav/data:/music:ro"
+    ports:
+      - "80:4533"
+    networks:
+      - kiezen
+
+
