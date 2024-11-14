@@ -1,0 +1,14 @@
+# 
+FROM python:3.12
+RUN apt update && apt install iputils-ping -y
+
+WORKDIR /app
+
+COPY requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
+
+COPY . /app
+
+RUN pip install .
+
+CMD ["python", "kiezen/app.py"]

@@ -6,6 +6,7 @@ networks:
 version: '3'
 services:
   webdav:
+    container_name: webdav
     image: bytemark/webdav:2.4
     restart: unless-stopped
     ports:
@@ -36,4 +37,16 @@ services:
     networks:
       - kiezen
 
+  kiezen:
+    build: .
+    container_name: kiezen
+    networks:
+      - kiezen
+    volumes:
+      - ./volumes/webdav/data:/music:ro
 
+    # build:
+    #   context: .
+    #   dockerfile: .devcontainer/Dockerfile
+    # container_name: kiezen
+    # command: /bin/sh -c "while sleep 1000; do :; done"
