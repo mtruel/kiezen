@@ -1,5 +1,29 @@
-# Dj Library Organizer
-Simple DJ software to manage a music library. 
+# Kiezen
+A web app for managing DJ libraries. 
+
+## Project setup
+```
+npm install
+```
+
+### Compiles and hot-reloads for development
+```
+npm run serve
+```
+
+### Compiles and minifies for production
+```
+npm run build
+```
+
+### Lints and fixes files
+```
+npm run lint
+```
+
+### Customize configuration
+See [Configuration Reference](https://cli.vuejs.org/config/).
+
 
 ## Roadmap
 ### Version 0.0.1
@@ -58,9 +82,17 @@ As a DJ I want :
     - To depreciate easly 
     - To create playlists
     - Mark songs 
+- Offline ? 
 
 - Share futures to social networks/text
 - Export my files/library in other DJ softwares
 - Have playlist
 - Proximity with other songs feature ? Will listen to songs that are close based on every noise at once or spotify api ??
 - Export my files on my usb key 
+
+## Technologies
+- SQLite database per user ? 
+- Python backend ? 
+- Vue frontend ? Electron ? 
+- Offline possible with subsonic ? 
+- Small desktop app for file sync
