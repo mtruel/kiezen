@@ -20,7 +20,37 @@ Minimum viable product :
     - An sqlite database :
         - A table for all songs with a uuid, a file to a path(file if playable, url if not, a ref to subsonic server)
 
+
+A frontend with Nuxt, files served via an API call 
+Wavesurfer load with Blob
+Type client avec Prisma? 
+upload files through fastAPI
+
+backend avec python, FastAPI, prisma?
+analyse de waveform ?
+serve files via FastAPI  
+
+Questions ?? 
+-Prisma plus utile si je passe en python ? 
+
+Etapes : 
+- Faire un schema db simple de sons avec de la fake data
+- Afficher la liste 
+- Formulaire d'ajouts de GHOST morceaux
+- zone d'ajouts de fichiers
+- stokage backend des fichiers
+
+Penser a la dockerisation du projet 
+
+
 ### Version 0.2
+
+Multi library 
+Multi user ??
+Add Auth via module auth
+Add file drop support via module
+
+
 
 ### Version 0.3
 

@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="client: chrome" type="JavascriptDebugType" uri="http://localhost:3000" useFirstLineBreakpoints="true">
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="server: nuxt" type="NodeJSConfigurationType" application-parameters="dev" path-to-js-file="node_modules/nuxi/bin/nuxi.mjs" working-dir="$PROJECT_DIR$">
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="prisma studio: chrome" type="JavascriptDebugType" uri="http://localhost:5555" useFirstLineBreakpoints="true">
+    <method v="2" />
+  </configuration>
+</component>
