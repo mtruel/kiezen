@@ -2,6 +2,7 @@
 const loginUser = () => {
   const isAuthenticated = useAuthentication();
   console.log('User is now authenticated:', isAuthenticated.value);
+  isAuthenticated.value = true;
   navigateTo('/library');
 };
 </script>
