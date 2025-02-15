@@ -20,7 +20,54 @@ Minimum viable product :
     - An sqlite database :
         - A table for all songs with a uuid, a file to a path(file if playable, url if not, a ref to subsonic server)
 
+
+Empty the list on submit
+Submit multiple files
+Be able to add a file to the database
+tags with mutagen
+
+Docker et deploiement
+
 ### Version 0.2
+Make a form to add a dummy song
+Remake a basic web audio player 
+
+### Version 0.3
+
+Wavesurfer load with Blob
+analyse de waveform ? 
+page édition d'un seul morceau
+
+### Version 0.4
+Script de scan des dossiers et de synchronisation avec la DB 
+
+### Version 0.5
+Authification
+Edition de tags
+
+Multi library
+
+Automatic reach for tags, covers and infos online (musibrainz ? )
+Etapes : 
+- Formulaire d'ajouts de GHOST morceaux
+- stokage backend des fichiers
+
+
+Multi user ??
+
+for tags:
+- mutagen 
+- musicbrainzngs
+
+for song infos analysis : 
+- librosa 
+- Essentia
+
+for playlist m3u export : 
+- m3u8
+
+
+
 
 ### Version 0.3
 
