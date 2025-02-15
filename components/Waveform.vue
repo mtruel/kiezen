@@ -37,6 +37,12 @@ onMounted(() => {
     handlePlay();
   });
 });
+
+onUnmounted(() => {
+  if (waveSurfer) waveSurfer.destroy();
+  if (interval) clearInterval(interval);
+});
+
 const isPlaying = ref(false);
 
 const playingSong = usePlayingSong();
