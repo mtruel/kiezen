@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 defineProps({
   song: {
     type: Object,
@@ -10,8 +10,8 @@ defineProps({
 <template>
   <div class="flex items-center gap-4 p-4 border-b border-gray-200 w-11/12">
     <!-- Cover Image -->
-    <div v-if="false" class="w-16 h-16 flex-shrink-0">
-      <img src="@/public/cover.png" alt="Cover Image" class="w-16 h-16 object-cover rounded-lg"/>
+    <div v-if="song?.cover" class="w-16 h-16 flex-shrink-0">
+      <img :src="song.cover" alt="Cover Image" class="w-16 h-16 object-cover rounded-lg"/>
     </div>
     <div v-else class="w  -16 h-16 bg-gray-300 flex items-center justify-center text-gray-600 rounded-lg">
       <span class="text-sm">No<br/>Image</span>
@@ -24,13 +24,9 @@ defineProps({
       <p v-if="song?.album" class="text-xs text-gray-500">{{ song?.album }}</p>
     </div>
 
-    <!-- Duration -->
-<!--    <div class="flex-shrink-0 text-sm text-gray-500">-->
-<!--      &lt;!&ndash;      {{  }}&ndash;&gt;-->
-<!--    </div>-->
-    <audio controls :src="song?.url" type="audio/mpeg"></audio>
-<!--    <Waveform :url="song?.url" :id="song?.id" />-->
+    <audio :src="song?.url" controls type="audio/mpeg"></audio>
+    <!--    <Waveform :url="song?.url" :id="song?.id" />-->
 
     <!-- Actions -->
-    </div>
+  </div>
 </template>
