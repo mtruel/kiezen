@@ -1,13 +1,13 @@
-from prisma import Prisma
-from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi import FastAPI, HTTPException
 from fastapi import UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+from prisma import Prisma
+
+from app.add_files import is_valid_audio_file
+
 app = FastAPI()
-
-
-
 
 origins = [
     "http://localhost:3000",
@@ -22,6 +22,7 @@ app.add_middleware(
 )
 
 app.mount("/music", StaticFiles(directory="tmp/music"), name="static")
+
 
 @app.get("/")
 def read_root():
@@ -56,7 +57,10 @@ async def main(file_path):
 
 
 @app.post("/uploadfile")
-async def create_upload_file(file: UploadFile):
+def create_upload_file(file: UploadFile):
+    if not is_valid_audio_file(file):
+        raise HTTPException(status_code=400, detail="Invalid audio file")
+
     with open(f"tmp/{file.filename}", "wb") as buffer:
         buffer.write(file.file.read())
     return {"filename": file.filename}
