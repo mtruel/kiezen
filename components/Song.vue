@@ -24,9 +24,6 @@ defineProps({
       <p v-if="song?.album" class="text-xs text-gray-500">{{ song?.album }}</p>
     </div>
 
-    <audio :src="song?.url" controls type="audio/mpeg"></audio>
-    <!--    <Waveform :url="song?.url" :id="song?.id" />-->
-
-    <!-- Actions -->
+    <Waveform :id="song?.id"/>
   </div>
 </template>

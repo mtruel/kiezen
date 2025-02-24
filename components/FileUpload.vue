@@ -14,7 +14,7 @@
       >
         <input
             ref="fileInputRef"
-            accept="audio/*"
+            accept="audio/*,.aiff"
             class="hidden"
             multiple
             type="file"

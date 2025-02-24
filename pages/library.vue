@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const {data: songs, status} = await useFetchFastAPI(`/v1/songs`);
+const {data: songs, status} = await useFetch(`/api/v1/songs`);
 </script>
 
 <template>

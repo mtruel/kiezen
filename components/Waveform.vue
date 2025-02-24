@@ -3,18 +3,17 @@ import WaveSurfer from 'wavesurfer.js'
 import Hover from 'wavesurfer.js/dist/plugins/hover.esm.js'
 import {usePlayingSong} from "~/composables/states";
 
-const waveform = ref(null)
+const waveform = ref<HTMLElement| null>(null)
 let waveSurfer: WaveSurfer
 
-const props = defineProps({url: String, id: {required: true, type: Number}});
+const props = defineProps({id: {required: true, type: Number}});
 
 onMounted(() => {
   waveSurfer = WaveSurfer.create({
-    container: waveform.value,
+    container: waveform.value as HTMLElement,
     waveColor: 'rgb(33,146,86)',
     progressColor: 'rgb(37,147,162)',
-    // url: '/Change/01 - Bugge Wesseltoft - Change .mp3',
-    url: props.url,
+    url: `/api/v1/file/${props.id}`,
     plugins: [
       Hover.create({
         lineColor: '#ff0000',

@@ -1,13 +1,8 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-generator client_frontend {
+generator client {
   provider = "prisma-client-js"
-}
-
-generator client_backend {
-  provider             = "prisma-client-py"
-  recursive_type_depth = 5
 }
 
 datasource db {
@@ -15,18 +10,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// enum SongStatus {
-//   STORED
-//   GOST
-// }
-
 model Song {
   id            Int     @id @default(autoincrement())
   title         String
-  artists       String
-  album         String
-  genre         String
-  label         String
+  artists       String  @default("")
+  album         String  @default("")
+  genre         String  @default("")
+  label         String  @default("")
   localy_stored Boolean @default(false)
   url           String?
   path          String?

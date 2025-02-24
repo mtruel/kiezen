@@ -1,12 +1,10 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="fullstack: nuxt" type="CompoundRunConfigurationType">
-    <toRun name="FastAPI docs" type="JavascriptDebugType" />
     <toRun name="Tailwind help" type="JavascriptDebugType" />
     <toRun name="client: chrome" type="JavascriptDebugType" />
     <toRun name="prisma studio: chrome" type="JavascriptDebugType" />
     <toRun name="server: nuxt" type="NodeJSConfigurationType" />
     <toRun name="Prisma Studio" type="ShConfigurationType" />
-    <toRun name="fastapi_backend" type="ShConfigurationType" />
     <method v="2" />
   </configuration>
 </component>
