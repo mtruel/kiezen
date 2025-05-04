@@ -19,16 +19,16 @@ export interface Song {
 export const api = {
   // Songs
   async getSongs(): Promise<Song[]> {
-    const response = await axios.get(`${API_BASE_URL}/songs`)
+    const response = await axios.get(`${API_BASE_URL}/api/songs/`)
     return response.data
   },
 
   async createSong(song: Omit<Song, 'id'>): Promise<Song> {
-    const response = await axios.post(`${API_BASE_URL}/songs`, song)
+    const response = await axios.post(`${API_BASE_URL}/api/songs/`, song)
     return response.data
   },
 
   async deleteSong(songId: string): Promise<void> {
-    await axios.delete(`${API_BASE_URL}/songs/${songId}`)
+    await axios.delete(`${API_BASE_URL}/api/songs/${songId}/`)
   }
 } 
