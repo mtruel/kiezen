@@ -1,33 +1,85 @@
 # kiezen
 
-This template should help get you started developing with Vue 3 in Vite.
+An application for DJs to help them choose songs in their library.
 
-## Recommended IDE Setup
+## Project Structure
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+The project is organized into several components:
 
-## Type Support for `.vue` Imports in TS
+- `web/` - Vue.js web application
+- `backend/` - Python backend service
+- `mobile/` - Future mobile application
+- `desktop/` - Future desktop application
+- `shared/` - Shared code and utilities
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+## Features
 
-## Customize configuration
+- Add dummy (ghost) songs with metadata or links
+- Mobile app for adding songs via share functionality
+- Web interface with:
+  - Song list management
+  - Forms for adding new songs and dummy songs
+  - Playlist management
+  - Song deletion
+  - Playlist creation and management
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+## Development Setup
 
-## Project Setup
+### Prerequisites
 
+- Node.js (v18 or higher)
+- Python (v3.8 or higher)
+- npm or yarn
+
+### Installation
+
+1. Clone the repository:
 ```sh
+git clone https://github.com/yourusername/kiezen.git
+cd kiezen
+```
+
+2. Install dependencies:
+```sh
+# Install root dependencies
+npm install
+
+# Install web app dependencies
+cd web
 npm install
 ```
 
-### Compile and Hot-Reload for Development
+### Development
 
+#### Web Application
 ```sh
+# From the root directory
+npm run dev:web
+
+# Or from the web directory
+cd web
 npm run dev
 ```
 
-### Type-Check, Compile and Minify for Production
+#### Backend
+```sh
+cd backend
+# Setup Python virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+
+# Run the backend server
+python src/main.py
+```
+
+### Building for Production
 
 ```sh
-npm run build
+# Build web application
+npm run build:web
 ```
+
+## License
+
+[Add your license here]
