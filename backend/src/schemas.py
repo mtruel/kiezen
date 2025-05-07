@@ -7,7 +7,7 @@ class SongBase(BaseModel):
     album: Optional[str] = None
     genre: Optional[str] = None
     year: Optional[int] = None
-    is_dummy: bool = False
+    is_dummy: int = 0  # 0 for real songs, 1 for dummy songs
     link: Optional[str] = None
     file_path: Optional[str] = None
 

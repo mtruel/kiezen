@@ -25,7 +25,7 @@ MUSIC_FILES_DIR = "music_files"
 os.makedirs(MUSIC_FILES_DIR, exist_ok=True)
 
 # Mount the music files directory
-app.mount("/music", StaticFiles(directory=MUSIC_FILES_DIR), name="music")
+app.mount("/music/music_files", StaticFiles(directory=MUSIC_FILES_DIR), name="music")
 
 # Include routes
 app.include_router(routes.router, prefix="/api")

@@ -1,7 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from sqlalchemy.orm import Session
 from typing import List
 from . import crud, schemas, database
+import os
+import shutil
 
 router = APIRouter()
 
@@ -12,6 +14,30 @@ def get_db():
         yield db
     finally:
         db.close()
+
+# File upload route
+@router.post("/upload/")
+async def upload_file(file: UploadFile = File(...), db: Session = Depends(get_db)):
+    # Create the music files directory if it doesn't exist
+    music_dir = "music_files"
+    os.makedirs(music_dir, exist_ok=True)
+    
+    # Create a safe filename
+    file_location = os.path.join(music_dir, file.filename)
+    
+    # Save the file
+    with open(file_location, "wb+") as file_object:
+        shutil.copyfileobj(file.file, file_object)
+    
+    # Create a song entry in the database
+    song_data = schemas.SongCreate(
+        title=os.path.splitext(file.filename)[0],  # Use filename as title
+        artist="Unknown",  # Default value
+        file_path=file_location,
+        is_dummy=0  # Set to 0 for uploaded files
+    )
+    
+    return crud.create_song(db=db, song=song_data)
 
 # Song routes
 @router.post("/songs/", response_model=schemas.Song)

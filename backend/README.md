@@ -36,7 +36,14 @@ mkdir music_files
 
 ## Running the Application
 
-Start the development server:
+You can start the development server in two ways:
+
+1. Using FastAPI CLI (recommended):
+```bash
+uv run fastapi dev ./src/main.py
+```
+
+2. Using Uvicorn directly:
 ```bash
 uvicorn src.main:app --reload
 ```
