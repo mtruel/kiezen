@@ -1,9 +1,46 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import SongList from './components/SongList.vue'
 import AddSongForm from './components/AddSongForm.vue'
+import MusicPlayer from './components/MusicPlayer.vue'
+import { api, type Song } from './api'
 
 const activeTab = ref('songs')
+const songListRef = ref<InstanceType<typeof SongList> | null>(null)
+const songs = ref<Song[]>([])
+const currentSong = ref<Song | null>(null)
+const currentSongIndex = ref(-1)
+
+const fetchSongs = async () => {
+  songs.value = await api.getSongs()
+}
+
+const handleSongAdded = () => {
+  fetchSongs()
+  songListRef.value?.fetchSongs()
+}
+
+const playSong = (song: Song) => {
+  currentSong.value = song
+  currentSongIndex.value = songs.value.findIndex(s => s.id === song.id)
+}
+
+const playNext = () => {
+  if (currentSongIndex.value < songs.value.length - 1) {
+    currentSongIndex.value++
+    currentSong.value = songs.value[currentSongIndex.value]
+  }
+}
+
+const playPrevious = () => {
+  if (currentSongIndex.value > 0) {
+    currentSongIndex.value--
+    currentSong.value = songs.value[currentSongIndex.value]
+  }
+}
+
+// Initial fetch
+fetchSongs()
 </script>
 
 <template>
@@ -15,13 +52,19 @@ const activeTab = ref('songs')
     <main>
       <div class="layout">
         <div class="form-column">
-          <AddSongForm />
+          <AddSongForm @song-added="handleSongAdded" />
         </div>
         <div class="content-column">
-          <SongList />
+          <SongList ref="songListRef" @play-song="playSong" />
         </div>
       </div>
     </main>
+
+    <MusicPlayer 
+      :song="currentSong" 
+      @next="playNext"
+      @previous="playPrevious"
+    />
   </div>
 </template>
 
@@ -30,6 +73,7 @@ const activeTab = ref('songs')
   max-width: 1400px;
   margin: 0 auto;
   padding: 2rem;
+  padding-bottom: 6rem; /* Add space for the player */
 }
 
 header {

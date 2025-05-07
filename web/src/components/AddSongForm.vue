@@ -2,17 +2,21 @@
 import { ref, computed } from 'vue'
 import { api, type Song } from '../api'
 
+const emit = defineEmits<{
+  (e: 'song-added'): void
+}>()
+
 const dummyForm = ref<Omit<Song, 'id'>>({
   title: '',
   artist: '',
-  isDummy: true,
+  isDummy: 1,
   metadata: {}
 })
 
 const uploadForm = ref<Omit<Song, 'id'>>({
   title: '',
   artist: '',
-  isDummy: false,
+  isDummy: 0,
   metadata: {}
 })
 
@@ -50,7 +54,7 @@ const handleFileUpload = async (event: Event) => {
     uploadForm.value = {
       title: fileNameWithoutExt,
       artist: 'Unknown Artist',
-      isDummy: false,
+      isDummy: 0,
       filePath: file.name,
       metadata: {
         duration: audio.duration || 0,
@@ -69,16 +73,24 @@ const submitDummyForm = async () => {
     error.value = null
     success.value = null
     
-    await api.createSong(dummyForm.value)
+    // Create the song with the URL mapped to link
+    const songData = {
+      ...dummyForm.value,
+      link: dummyForm.value.url  // Map url to link for the backend
+    }
+    
+    await api.createSong(songData)
     
     // Reset form
     dummyForm.value = {
       title: '',
       artist: '',
-      isDummy: true,
+      isDummy: 1,
+      url: '',  // Reset URL field
       metadata: {}
     }
     success.value = 'Dummy song added successfully!'
+    emit('song-added')
   } catch (err) {
     error.value = 'Failed to add dummy song. Please try again.'
     console.error(err)
@@ -90,19 +102,26 @@ const submitUploadForm = async () => {
     error.value = null
     success.value = null
     
-    await api.createSong(uploadForm.value)
+    if (!fileInput.value?.files?.length) {
+      error.value = 'Please select a file to upload'
+      return
+    }
+
+    const file = fileInput.value.files[0]
+    const uploadedSong = await api.uploadFile(file)
     
     // Reset form
     uploadForm.value = {
       title: '',
       artist: '',
-      isDummy: false,
+      isDummy: 0,
       metadata: {}
     }
     if (fileInput.value) {
       fileInput.value.value = ''
     }
     success.value = 'Song uploaded successfully!'
+    emit('song-added')
   } catch (err) {
     error.value = 'Failed to upload song. Please try again.'
     console.error(err)
