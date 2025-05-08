@@ -1,138 +1,113 @@
-<script setup lang="ts">
+<script lang="ts">
+import { defineComponent } from 'vue'
 import { ref, onMounted } from 'vue'
 import { api, type Song } from '../api'
+import { useErrorHandler } from '../composables/useErrorHandler'
+import { useLoadingState } from '../composables/useLoadingState'
+import SongTable from './songs/SongTable.vue'
+import ErrorMessage from './common/ErrorMessage.vue'
 
-const songs = ref<Song[]>([])
-const error = ref<string | null>(null)
-const isLoading = ref(false)
-const songToDelete = ref<string | null>(null)
-const deleteTimeout = ref<number | null>(null)
+export default defineComponent({
+  name: 'SongList',
+  components: {
+    SongTable,
+    ErrorMessage
+  },
+  setup() {
+    const { error, handleError, clearError } = useErrorHandler()
+    const { isLoading, withLoading } = useLoadingState()
+    const songs = ref<Song[]>([])
+    const songToDelete = ref<string | null>(null)
+    const deleteTimeout = ref<number | null>(null)
 
-const emit = defineEmits<{
-  (e: 'play-song', song: Song): void
-}>()
+    const emit = defineEmits<{
+      (e: 'play-song', song: Song): void
+    }>()
 
-const fetchSongs = async () => {
-  try {
-    isLoading.value = true
-    error.value = null
-    songs.value = await api.getSongs()
-  } catch (err) {
-    error.value = 'Failed to load songs. Please check your connection and try again.'
-    console.error('Error fetching songs:', err)
-  } finally {
-    isLoading.value = false
-  }
-}
-
-const deleteSong = async (songId: string) => {
-  try {
-    error.value = null
-    await api.deleteSong(songId)
-    await fetchSongs()
-    songToDelete.value = null
-    if (deleteTimeout.value) {
-      clearTimeout(deleteTimeout.value)
-      deleteTimeout.value = null
+    const fetchSongs = async () => {
+      try {
+        clearError()
+        songs.value = await withLoading(() => api.getSongs())
+      } catch (err) {
+        handleError(err, 'Failed to load songs. Please check your connection and try again.')
+      }
     }
-  } catch (err) {
-    error.value = 'Failed to delete song. Please try again.'
-    console.error('Error deleting song:', err)
-  }
-}
 
-const handleDeleteClick = (songId: string) => {
-  if (songToDelete.value === songId) {
-    deleteSong(songId)
-  } else {
-    songToDelete.value = songId
-    if (deleteTimeout.value) {
-      clearTimeout(deleteTimeout.value)
+    const deleteSong = async (songId: string) => {
+      try {
+        clearError()
+        await withLoading(() => api.deleteSong(songId))
+        await fetchSongs()
+        songToDelete.value = null
+        if (deleteTimeout.value) {
+          clearTimeout(deleteTimeout.value)
+          deleteTimeout.value = null
+        }
+      } catch (err) {
+        handleError(err, 'Failed to delete song. Please try again.')
+      }
     }
-    deleteTimeout.value = window.setTimeout(() => {
-      songToDelete.value = null
-      deleteTimeout.value = null
-    }, 3000)
+
+    const handleDeleteClick = (songId: string) => {
+      if (songToDelete.value === songId) {
+        deleteSong(songId)
+      } else {
+        songToDelete.value = songId
+        if (deleteTimeout.value) {
+          clearTimeout(deleteTimeout.value)
+        }
+        deleteTimeout.value = window.setTimeout(() => {
+          songToDelete.value = null
+          deleteTimeout.value = null
+        }, 3000)
+      }
+    }
+
+    const playSong = (song: Song) => {
+      emit('play-song', song)
+    }
+
+    const isDummySong = (song: Song) => {
+      return song.isDummy === 1
+    }
+
+    onMounted(fetchSongs)
+
+    return {
+      error,
+      isLoading,
+      songs,
+      songToDelete,
+      fetchSongs,
+      handleDeleteClick,
+      playSong,
+      isDummySong
+    }
   }
-}
-
-const playSong = (song: Song) => {
-  emit('play-song', song)
-}
-
-const isDummySong = (song: Song) => {
-  return song.isDummy === 1
-}
-
-onMounted(fetchSongs)
-
-// Expose the fetchSongs method to parent components
-defineExpose({
-  fetchSongs
 })
-</script>
-
-<script lang="ts">
-export default {
-  name: 'SongList'
-}
 </script>
 
 <template>
   <div>
     <h2 class="text-2xl font-bold mb-4">Songs</h2>
     
-    <div v-if="error" class="bg-red-50 border border-red-400 rounded-lg p-4 mb-4 flex items-center justify-between">
-      <p class="text-red-600">{{ error }}</p>
-      <button @click="fetchSongs" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors">Retry</button>
-    </div>
+    <ErrorMessage 
+      v-if="error" 
+      :message="error" 
+      @retry="fetchSongs" 
+    />
 
     <div v-if="isLoading" class="text-gray-600">
       Loading songs...
     </div>
     
-    <table v-else-if="!error" class="w-full border-collapse">
-      <thead>
-        <tr>
-          <th class="p-3 text-left border-b bg-gray-50">Title</th>
-          <th class="p-3 text-left border-b bg-gray-50">Artist</th>
-          <th class="p-3 text-left border-b bg-gray-50">Type</th>
-          <th class="p-3 text-left border-b bg-gray-50">URL</th>
-          <th class="p-3 text-left border-b bg-gray-50">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="song in songs" :key="song.id" class="hover:bg-gray-50">
-          <td class="p-3 border-b">{{ song.title }}</td>
-          <td class="p-3 border-b">{{ song.artist }}</td>
-          <td class="p-3 border-b">{{ isDummySong(song) ? 'Dummy' : 'Regular' }}</td>
-          <td class="p-3 border-b">
-            <a v-if="isDummySong(song) && song.url" 
-               :href="song.url" 
-               target="_blank" 
-               rel="noopener noreferrer"
-               class="inline-block px-2 py-1 bg-gray-50 border border-gray-200 rounded font-mono text-sm max-w-[300px] truncate hover:bg-gray-100 hover:border-gray-300 transition-colors"
-               :title="song.url">
-              🔗 {{ song.url }}
-            </a>
-            <span v-else>-</span>
-          </td>
-          <td class="p-3 border-b">
-            <div class="flex items-center gap-2">
-              <button v-if="!isDummySong(song)" 
-                      @click="playSong(song)" 
-                      class="px-3 py-1 bg-emerald-600 text-white rounded hover:bg-emerald-700 transition-colors">
-                ▶
-              </button>
-              <button @click="handleDeleteClick(song.id)" 
-                      class="w-20 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition-colors flex items-center justify-center">
-                {{ songToDelete === song.id ? '🗑️' : 'Delete' }}
-              </button>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <SongTable 
+      v-else-if="!error"
+      :songs="songs"
+      :song-to-delete="songToDelete"
+      @play-song="$emit('play-song', $event)"
+      @delete-song="handleDeleteClick"
+    />
   </div>
 </template>
 
