@@ -20,7 +20,7 @@ const submit = async () => {
     formData.append('file', file); // Use 'file' as key (as shown in the curl example)
 
     try {
-      const response = await $fetch('http://127.0.0.1:8000/uploadfile', {
+      const response = await $fetch('/api/v1/uploadfile', {
         method: 'POST',
         body: formData,
         headers: {

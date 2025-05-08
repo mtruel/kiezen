@@ -30,16 +30,16 @@ Docker et deploiement
 
 ### Version 0.2
 Make a form to add a dummy song
-Remake a basic web audio player 
 
 ### Version 0.3
 
+Remake a basic web audio player
 Wavesurfer load with Blob
 analyse de waveform ? 
-page édition d'un seul morceau
 
 ### Version 0.4
-Script de scan des dossiers et de synchronisation avec la DB 
+Script de scan des dossiers et de synchronisation avec la DB
+page édition d'un seul morceau
 
 ### Version 0.5
 Authification

@@ -7,26 +7,27 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "start": "node .output/server/index.mjs"
   },
-  "devDependencies": {
+  "dependencies": {
     "@inspira-ui/plugins": "^0.0.1",
-    "@nuxt/devtools": "latest",
+    "@nuxt/devtools": "^2.1.0",
     "@nuxt/ui": "^2.20.0",
+    "@prisma/client": "^6.7.0",
+    "@prisma/nuxt": "^0.2.0",
     "@vueuse/nuxt": "^12.4.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "nuxt": "^3.15.1",
-    "prisma": "^6.4.1",
-    "tailwind-merge": "^3.0.1",
-    "tailwindcss-animate": "^1.0.7",
-    "vue": "latest"
-  },
-  "dependencies": {
-    "@prisma/client": "^6.4.1",
-    "@prisma/nuxt": "^0.2.0",
     "motion-v": "^0.10.0-beta.1",
     "music-metadata": "^11.0.0",
+    "nuxt": "^3.15.4",
+    "tailwind-merge": "^3.0.1",
+    "tailwindcss-animate": "^1.0.7",
+    "vue": "latest",
     "wavesurfer.js": "^7.9.0"
+  },
+  "devDependencies": {
+    "prisma": "^6.4.1"
   }
 }

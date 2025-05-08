@@ -3,7 +3,7 @@
     <toRun name="Tailwind help" type="JavascriptDebugType" />
     <toRun name="client: chrome" type="JavascriptDebugType" />
     <toRun name="prisma studio: chrome" type="JavascriptDebugType" />
-    <toRun name="server: nuxt" type="NodeJSConfigurationType" />
+    <toRun name="npm dev" type="js.build_tools.npm" />
     <toRun name="Prisma Studio" type="ShConfigurationType" />
     <method v="2" />
   </configuration>

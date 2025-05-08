@@ -1,0 +1,10 @@
+services:
+  nuxt:
+    build:
+      context: .
+    image: nuxt-app
+    container_name: nuxt-app
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+    ports:
+      - ${OUTPUT_PORT}:3000
