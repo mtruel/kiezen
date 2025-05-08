@@ -52,112 +52,48 @@ export default {
 </script>
 
 <template>
-  <div class="playlist-list">
-    <h2>Playlists</h2>
+  <div class="mt-8">
+    <h2 class="text-2xl font-bold mb-4">Playlists</h2>
 
-    <div v-if="error" class="error-message">
+    <div v-if="error" class="bg-red-50 border border-red-400 rounded-lg p-4 text-red-600 mb-4">
       {{ error }}
     </div>
     
-    <div v-if="success" class="success-message">
+    <div v-if="success" class="bg-green-50 border border-green-400 rounded-lg p-4 text-green-600 mb-4">
       {{ success }}
     </div>
 
-    <div class="create-playlist">
+    <div class="flex gap-4 mb-8">
       <input 
         type="text" 
         v-model="newPlaylistName" 
         placeholder="New playlist name"
         @keyup.enter="createPlaylist"
+        class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
       >
-      <button @click="createPlaylist" class="create-btn">Create Playlist</button>
+      <button 
+        @click="createPlaylist" 
+        class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
+      >
+        Create Playlist
+      </button>
     </div>
 
-    <div class="playlists">
-      <div v-for="playlist in playlists" :key="playlist.id" class="playlist-item">
-        <h3>{{ playlist.name }}</h3>
-        <p>{{ playlist.songs.length }} songs</p>
-        <button @click="deletePlaylist(playlist.id)" class="delete-btn">Delete</button>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div v-for="playlist in playlists" :key="playlist.id" class="bg-gray-50 p-4 rounded-lg relative">
+        <h3 class="text-lg font-semibold mb-2">{{ playlist.name }}</h3>
+        <p class="text-gray-600">{{ playlist.songs.length }} songs</p>
+        <button 
+          @click="deletePlaylist(playlist.id)" 
+          class="absolute top-2 right-2 px-2 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition-colors"
+        >
+          Delete
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.playlist-list {
-  margin-top: 2rem;
-}
-
-.create-playlist {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
-
-input[type="text"] {
-  flex: 1;
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
-
-.create-btn {
-  background-color: #42b983;
-  color: white;
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.playlists {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 1rem;
-}
-
-.playlist-item {
-  background: #f5f5f5;
-  padding: 1rem;
-  border-radius: 4px;
-  position: relative;
-}
-
-.playlist-item h3 {
-  margin: 0 0 0.5rem 0;
-}
-
-.playlist-item p {
-  margin: 0;
-  color: #666;
-}
-
-.delete-btn {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  background-color: #ff4444;
-  color: white;
-  padding: 0.25rem 0.5rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.8rem;
-}
-
-.error-message {
-  color: #ff4444;
-  margin-bottom: 1rem;
-  padding: 0.5rem;
-  background-color: #ffeeee;
-  border-radius: 4px;
-}
-
-.success-message {
-  color: #42b983;
-  margin-bottom: 1rem;
-  padding: 0.5rem;
-  background-color: #f0fff0;
-  border-radius: 4px;
-}
+/* Remove all custom CSS as we're using Tailwind now */
 </style> 

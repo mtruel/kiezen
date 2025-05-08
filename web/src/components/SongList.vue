@@ -57,48 +57,55 @@ export default {
 </script>
 
 <template>
-  <div class="song-list">
-    <h2>Songs</h2>
+  <div>
+    <h2 class="text-2xl font-bold mb-4">Songs</h2>
     
-    <div v-if="error" class="error-container">
-      <p class="error-message">{{ error }}</p>
-      <button @click="fetchSongs" class="retry-btn">Retry</button>
+    <div v-if="error" class="bg-red-50 border border-red-400 rounded-lg p-4 mb-4 flex items-center justify-between">
+      <p class="text-red-600">{{ error }}</p>
+      <button @click="fetchSongs" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors">Retry</button>
     </div>
 
-    <div v-if="isLoading" class="loading-message">
+    <div v-if="isLoading" class="text-gray-600">
       Loading songs...
     </div>
     
-    <table v-else-if="!error">
+    <table v-else-if="!error" class="w-full border-collapse">
       <thead>
         <tr>
-          <th>Title</th>
-          <th>Artist</th>
-          <th>Type</th>
-          <th>URL</th>
-          <th>Actions</th>
+          <th class="p-3 text-left border-b bg-gray-50">Title</th>
+          <th class="p-3 text-left border-b bg-gray-50">Artist</th>
+          <th class="p-3 text-left border-b bg-gray-50">Type</th>
+          <th class="p-3 text-left border-b bg-gray-50">URL</th>
+          <th class="p-3 text-left border-b bg-gray-50">Actions</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="song in songs" :key="song.id">
-          <td>{{ song.title }}</td>
-          <td>{{ song.artist }}</td>
-          <td>{{ isDummySong(song) ? 'Dummy' : 'Regular' }}</td>
-          <td>
+        <tr v-for="song in songs" :key="song.id" class="hover:bg-gray-50">
+          <td class="p-3 border-b">{{ song.title }}</td>
+          <td class="p-3 border-b">{{ song.artist }}</td>
+          <td class="p-3 border-b">{{ isDummySong(song) ? 'Dummy' : 'Regular' }}</td>
+          <td class="p-3 border-b">
             <a v-if="isDummySong(song) && song.url" 
                :href="song.url" 
                target="_blank" 
                rel="noopener noreferrer"
-               class="url-link"
+               class="inline-block px-2 py-1 bg-gray-50 border border-gray-200 rounded font-mono text-sm max-w-[300px] truncate hover:bg-gray-100 hover:border-gray-300 transition-colors"
                :title="song.url">
               🔗 {{ song.url }}
             </a>
             <span v-else>-</span>
           </td>
-          <td class="actions-cell">
-            <div class="actions-wrapper">
-              <button v-if="!isDummySong(song)" @click="playSong(song)" class="play-btn">▶</button>
-              <button @click="deleteSong(song.id)" class="delete-btn">Delete</button>
+          <td class="p-3 border-b">
+            <div class="flex items-center gap-2">
+              <button v-if="!isDummySong(song)" 
+                      @click="playSong(song)" 
+                      class="px-3 py-1 bg-emerald-600 text-white rounded hover:bg-emerald-700 transition-colors">
+                ▶
+              </button>
+              <button @click="deleteSong(song.id)" 
+                      class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition-colors">
+                Delete
+              </button>
             </div>
           </td>
         </tr>
@@ -108,117 +115,5 @@ export default {
 </template>
 
 <style scoped>
-.song-list {
-  margin-top: 0;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th, td {
-  padding: 0.75rem;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
-}
-
-th {
-  background-color: #f5f5f5;
-}
-
-.actions-cell {
-  /* display: flex; align-items: center; gap: 0.5rem; */
-}
-
-.actions-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-button {
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.play-btn {
-  background-color: #42b983;
-  color: white;
-}
-
-.play-btn:hover {
-  background-color: #3aa876;
-}
-
-.delete-btn {
-  background-color: #ff4444;
-  color: white;
-}
-
-.delete-btn:hover {
-  background-color: #ff3333;
-}
-
-.url-link {
-  color: #2c3e50;
-  text-decoration: none;
-  word-break: break-all;
-  display: inline-block;
-  padding: 4px 8px;
-  background-color: #f8f9fa;
-  border: 1px solid #e9ecef;
-  border-radius: 4px;
-  font-family: monospace;
-  font-size: 0.9em;
-  max-width: 300px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.url-link:hover {
-  background-color: #e9ecef;
-  text-decoration: none;
-  border-color: #dee2e6;
-}
-
-.error-container {
-  background-color: #ffeeee;
-  border: 1px solid #ff4444;
-  border-radius: 4px;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.error-message {
-  color: #ff4444;
-  margin: 0;
-}
-
-.retry-btn {
-  background-color: #ff4444;
-  color: white;
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.retry-btn:hover {
-  background-color: #ff3333;
-}
-
-.loading-message {
-  text-align: center;
-  padding: 2rem;
-  color: #666;
-  font-style: italic;
-}
+/* Remove all custom CSS as we're using Tailwind now */
 </style> 

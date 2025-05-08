@@ -153,30 +153,36 @@ export default {
 </script>
 
 <template>
-  <div class="add-song-form">
-    <div class="form-section">
-      <h2>Upload Song</h2>
-      <form @submit.prevent="submitUploadForm">
-        <div v-if="error" class="error-message">
+  <div class="space-y-8 max-w-md mx-auto">
+    <div class="bg-white rounded-lg shadow p-6 max-w-md mx-auto">
+      <h2 class="text-2xl font-bold mb-4">Upload Song</h2>
+      <form @submit.prevent="submitUploadForm" class="space-y-4">
+        <div v-if="error" class="bg-red-50 border border-red-400 rounded-lg p-4 text-red-600">
           {{ error }}
         </div>
         
-        <div v-if="success" class="success-message">
+        <div v-if="success" class="bg-green-50 border border-green-400 rounded-lg p-4 text-green-600">
           {{ success }}
         </div>
 
-        <div class="form-group">
-          <label for="file">Upload Song</label>
+        <div class="space-y-2">
+          <label for="file" class="block text-sm font-medium text-gray-700">Upload Song</label>
           <input 
             type="file" 
             id="file" 
             ref="fileInput"
             accept="audio/*"
             @change="handleFileUpload"
+            class="block w-full text-sm text-gray-500
+                   file:mr-4 file:py-2 file:px-4
+                   file:rounded-full file:border-0
+                   file:text-sm file:font-semibold
+                   file:bg-emerald-50 file:text-emerald-700
+                   hover:file:bg-emerald-100"
           >
         </div>
 
-        <div v-if="uploadForm.title" class="preview-info">
+        <div v-if="uploadForm.title" class="bg-gray-50 rounded-lg p-4 space-y-2">
           <p><strong>Title:</strong> {{ uploadForm.title }}</p>
           <p><strong>Artist:</strong> {{ uploadForm.artist }}</p>
           <p v-if="uploadForm.metadata.duration">
@@ -184,159 +190,81 @@ export default {
           </p>
         </div>
 
-        <button type="submit" class="submit-btn" :disabled="!uploadForm.title">Upload Song</button>
+        <button 
+          type="submit" 
+          :disabled="!uploadForm.title"
+          class="w-full px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          Upload Song
+        </button>
       </form>
     </div>
 
-    <div class="form-section">
-      <h2>Add Dummy Song</h2>
-      <form @submit.prevent="submitDummyForm">
-        <div class="form-group">
-          <label for="dummy-title">Title</label>
+    <div class="bg-white rounded-lg shadow p-6 max-w-md mx-auto">
+      <h2 class="text-2xl font-bold mb-4">Add Dummy Song</h2>
+      <form @submit.prevent="submitDummyForm" class="space-y-4">
+        <div class="space-y-2">
+          <label for="dummy-title" class="block text-sm font-medium text-gray-700">Title</label>
           <input 
             type="text" 
             id="dummy-title" 
-            v-model="dummyForm.title" 
+            v-model="dummyForm.title"
+            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
           >
         </div>
 
-        <div class="form-group">
-          <label for="dummy-artist">Artist</label>
+        <div class="space-y-2">
+          <label for="dummy-artist" class="block text-sm font-medium text-gray-700">Artist</label>
           <input 
             type="text" 
             id="dummy-artist" 
-            v-model="dummyForm.artist" 
+            v-model="dummyForm.artist"
+            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
           >
         </div>
 
-        <div class="form-group">
-          <label for="dummy-url">URL</label>
+        <div class="space-y-2">
+          <label for="dummy-url" class="block text-sm font-medium text-gray-700">URL</label>
           <input 
             type="url" 
             id="dummy-url" 
             v-model="dummyForm.url"
+            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
           >
         </div>
 
-        <div class="form-group">
-          <label for="dummy-genre">Genre</label>
+        <div class="space-y-2">
+          <label for="dummy-genre" class="block text-sm font-medium text-gray-700">Genre</label>
           <input 
             type="text" 
             id="dummy-genre" 
             v-model="dummyForm.metadata.genre"
+            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
           >
         </div>
 
-        <div class="form-group">
-          <label for="dummy-year">Year</label>
+        <div class="space-y-2">
+          <label for="dummy-year" class="block text-sm font-medium text-gray-700">Year</label>
           <input 
             type="number" 
             id="dummy-year" 
             v-model="dummyForm.metadata.year"
+            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
           >
         </div>
 
-        <button type="submit" class="submit-btn" :disabled="!isDummyFormValid">Add Dummy Song</button>
+        <button 
+          type="submit" 
+          :disabled="!isDummyFormValid"
+          class="w-full px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          Add Dummy Song
+        </button>
       </form>
     </div>
   </div>
 </template>
 
 <style scoped>
-.add-song-form {
-  margin-bottom: 2rem;
-  padding: 1rem;
-  background: #f5f5f5;
-  border-radius: 8px;
-}
-
-.form-section {
-  margin-bottom: 2rem;
-  padding: 1rem;
-  background: white;
-  border-radius: 4px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.form-section:last-child {
-  margin-bottom: 0;
-}
-
-h2 {
-  font-size: 1.25rem;
-  margin-bottom: 1rem;
-  color: #2c3e50;
-}
-
-.form-group {
-  margin-bottom: 1rem;
-}
-
-label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: bold;
-}
-
-input[type="text"],
-input[type="url"],
-input[type="number"],
-input[type="file"] {
-  width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
-
-input::placeholder {
-  color: #999;
-  font-style: italic;
-}
-
-.preview-info {
-  margin: 1rem 0;
-  padding: 1rem;
-  background: #f8f9fa;
-  border-radius: 4px;
-}
-
-.preview-info p {
-  margin: 0.5rem 0;
-}
-
-.submit-btn {
-  background-color: #42b983;
-  color: white;
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1rem;
-  width: 100%;
-}
-
-.submit-btn:hover {
-  background-color: #3aa876;
-}
-
-.submit-btn:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
-}
-
-.error-message {
-  color: #ff4444;
-  margin-bottom: 1rem;
-  padding: 0.5rem;
-  background-color: #ffeeee;
-  border-radius: 4px;
-}
-
-.success-message {
-  color: #42b983;
-  margin-bottom: 1rem;
-  padding: 0.5rem;
-  background-color: #f0fff0;
-  border-radius: 4px;
-}
+/* Remove all custom CSS as we're using Tailwind now */
 </style> 

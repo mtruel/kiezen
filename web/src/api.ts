@@ -17,11 +17,20 @@ export interface Song {
   }
 }
 
+export interface Playlist {
+  id: string
+  name: string
+  songs: Song[]
+}
+
 export interface Api {
   getSongs(): Promise<Song[]>
   createSong(song: Omit<Song, 'id'>): Promise<Song>
   deleteSong(songId: string): Promise<void>
   uploadFile(file: File): Promise<Song>
+  getPlaylists(): Promise<Playlist[]>
+  createPlaylist(name: string): Promise<Playlist>
+  deletePlaylist(playlistId: string): Promise<void>
 }
 
 export const api: Api = {
@@ -60,5 +69,20 @@ export const api: Api = {
       }
     })
     return response.data
+  },
+
+  // Playlists
+  async getPlaylists(): Promise<Playlist[]> {
+    const response = await axios.get(`${API_BASE_URL}/api/playlists/`)
+    return response.data
+  },
+
+  async createPlaylist(name: string): Promise<Playlist> {
+    const response = await axios.post(`${API_BASE_URL}/api/playlists/`, { name })
+    return response.data
+  },
+
+  async deletePlaylist(playlistId: string): Promise<void> {
+    await axios.delete(`${API_BASE_URL}/api/playlists/${playlistId}/`)
   }
 } 

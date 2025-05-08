@@ -127,11 +127,11 @@ const handlePrevious = () => {
 </script>
 
 <template>
-  <div class="music-player" v-if="song">
-    <div class="player-content">
-      <div class="player-info">
-        <h3>{{ song.title }}</h3>
-        <p>{{ song.artist }}</p>
+  <div v-if="song" class="fixed bottom-0 left-0 right-0 bg-slate-800 text-white p-4 shadow-lg z-50">
+    <div class="max-w-[1400px] mx-auto flex items-center gap-8">
+      <div class="min-w-[200px]">
+        <h3 class="text-lg font-semibold">{{ song.title }}</h3>
+        <p class="text-gray-300">{{ song.artist }}</p>
       </div>
 
       <audio
@@ -142,30 +142,30 @@ const handlePrevious = () => {
         @ended="handleEnded"
       ></audio>
 
-      <div class="player-controls">
-        <button @click="handlePrevious" class="control-btn">
+      <div class="flex-1 flex items-center gap-4">
+        <button @click="handlePrevious" class="text-2xl hover:text-gray-300 transition-colors">
           ⏮
         </button>
         
-        <button @click="togglePlay" class="play-btn">
+        <button @click="togglePlay" class="text-3xl hover:text-gray-300 transition-colors">
           {{ isPlaying ? '⏸' : '▶' }}
         </button>
 
-        <button @click="$emit('next')" class="control-btn">
+        <button @click="$emit('next')" class="text-2xl hover:text-gray-300 transition-colors">
           ⏭
         </button>
 
-        <div class="progress-container">
-          <span class="time">{{ formattedTime(currentTime) }}</span>
+        <div class="flex-1 flex items-center gap-2">
+          <span class="text-sm text-gray-400">{{ formattedTime(currentTime) }}</span>
           <input
             type="range"
             :min="0"
             :max="duration"
             :value="currentTime"
             @input="seek"
-            class="progress-bar"
+            class="flex-1 h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white"
           >
-          <span class="time">{{ formattedTime(duration) }}</span>
+          <span class="text-sm text-gray-400">{{ formattedTime(duration) }}</span>
         </div>
       </div>
     </div>
@@ -173,121 +173,7 @@ const handlePrevious = () => {
 </template>
 
 <style scoped>
-.music-player {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: #2c3e50;
-  color: white;
-  padding: 1rem;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
-}
-
-.player-content {
-  max-width: 1400px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  gap: 2rem;
-}
-
-.player-info {
-  min-width: 200px;
-}
-
-.player-info h3 {
-  margin: 0;
-  font-size: 1.1rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.player-info p {
-  margin: 0.25rem 0 0;
-  color: #a0aec0;
-  font-size: 0.9rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.player-controls {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.control-btn {
-  background: transparent;
-  color: white;
-  border: none;
-  font-size: 1.2rem;
-  cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.2s;
-}
-
-.control-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.play-btn {
-  background: #42b983;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  font-size: 1.2rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.2s;
-}
-
-.play-btn:hover {
-  background: #3aa876;
-}
-
-.progress-container {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.progress-bar {
-  flex: 1;
-  height: 4px;
-  -webkit-appearance: none;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 2px;
-  outline: none;
-}
-
-.progress-bar::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 12px;
-  height: 12px;
-  background: #42b983;
-  border-radius: 50%;
-  cursor: pointer;
-}
-
-.time {
-  font-size: 0.8rem;
-  color: #a0aec0;
-  min-width: 40px;
-}
+/* Remove all custom CSS as we're using Tailwind now */
 </style>
 
 <script lang="ts">
