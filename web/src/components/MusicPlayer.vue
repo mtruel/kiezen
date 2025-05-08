@@ -1,6 +1,14 @@
 <script setup lang="ts">
 import { ref, computed, watch, onUnmounted, nextTick } from 'vue'
 import { type Song } from '../api'
+import { 
+  BackwardIcon, 
+  ForwardIcon, 
+  PlayIcon, 
+  PauseIcon, 
+  SpeakerWaveIcon, 
+  SpeakerXMarkIcon 
+} from '@heroicons/vue/24/solid'
 
 const props = defineProps<{
   song: Song | null
@@ -16,6 +24,9 @@ const emit = defineEmits<{
 const audio = ref<HTMLAudioElement | null>(null)
 const currentTime = ref(0)
 const duration = ref(0)
+const volume = ref(1)
+const isMuted = ref(false)
+const previousVolume = ref(1)
 
 const audioUrl = computed(() => {
   if (!props.song) return ''
@@ -77,6 +88,30 @@ watch(() => props.isPlaying, (newValue) => {
   }
 })
 
+watch(volume, (val) => {
+  if (audio.value) {
+    audio.value.volume = val
+    if (val === 0) {
+      isMuted.value = true
+      audio.value.muted = true
+    } else {
+      isMuted.value = false
+      audio.value.muted = false
+    }
+  }
+})
+
+watch(isMuted, (val) => {
+  if (audio.value) {
+    audio.value.muted = val
+    if (val) {
+      audio.value.volume = 0
+    } else {
+      audio.value.volume = volume.value || 1
+    }
+  }
+})
+
 onUnmounted(() => {
   cleanup()
 })
@@ -128,6 +163,51 @@ const handlePrevious = () => {
     emit('previous')
   }
 }
+
+const setVolume = (val: number) => {
+  if (val > 0) {
+    previousVolume.value = val
+  }
+  volume.value = val
+  if (audio.value) {
+    audio.value.volume = val
+    if (val === 0) {
+      isMuted.value = true
+      audio.value.muted = true
+    } else {
+      isMuted.value = false
+      audio.value.muted = false
+    }
+  }
+}
+
+const toggleMute = () => {
+  if (!isMuted.value) {
+    // Muting: save current volume if not zero
+    if (volume.value > 0) {
+      previousVolume.value = volume.value
+    }
+    isMuted.value = true
+    volume.value = 0
+    if (audio.value) {
+      audio.value.muted = true
+      audio.value.volume = 0
+    }
+  } else {
+    // Unmuting: restore previous volume
+    isMuted.value = false
+    volume.value = previousVolume.value || 1
+    if (audio.value) {
+      audio.value.muted = false
+      audio.value.volume = volume.value
+    }
+  }
+}
+
+const handleVolumeInput = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  setVolume(parseFloat(target.value))
+}
 </script>
 
 <template>
@@ -148,27 +228,16 @@ const handlePrevious = () => {
 
       <div class="flex-1 flex items-center gap-4">
         <button @click="handlePrevious" class="p-2 rounded-full bg-slate-700 hover:bg-slate-600 transition-colors">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <rect x="3" y="5" width="2" height="14" rx="1" fill="currentColor" />
-            <polygon points="5,12 19,5 19,19" fill="currentColor" />
-          </svg>
+          <BackwardIcon class="h-6 w-6" />
         </button>
         
         <button @click="togglePlay" class="p-3 rounded-full bg-slate-700 hover:bg-slate-600 transition-colors">
-          <svg v-if="isPlaying" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <rect x="7" y="5" width="3" height="14" fill="currentColor" />
-            <rect x="14" y="5" width="3" height="14" fill="currentColor" />
-          </svg>
-          <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <polygon points="6,4 20,12 6,20" fill="currentColor" />
-          </svg>
+          <PauseIcon v-if="isPlaying" class="h-8 w-8" />
+          <PlayIcon v-else class="h-8 w-8" />
         </button>
 
         <button @click="$emit('next')" class="p-2 rounded-full bg-slate-700 hover:bg-slate-600 transition-colors">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <rect x="19" y="5" width="2" height="14" rx="1" fill="currentColor" />
-            <polygon points="19,12 5,5 5,19" fill="currentColor" />
-          </svg>
+          <ForwardIcon class="h-6 w-6" />
         </button>
 
         <div class="flex-1 flex items-center gap-2">
@@ -182,6 +251,22 @@ const handlePrevious = () => {
             class="flex-1 h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white"
           >
           <span class="text-sm text-gray-400">{{ formattedTime(duration) }}</span>
+        </div>
+        <!-- Volume control -->
+        <div class="flex items-center gap-2 ml-auto">
+          <button @click="toggleMute" class="p-2 flex items-center justify-center rounded-full bg-slate-700 hover:bg-slate-600 transition-colors">
+            <SpeakerXMarkIcon v-if="isMuted || volume === 0" class="h-6 w-6" />
+            <SpeakerWaveIcon v-else class="h-6 w-6" />
+          </button>
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            :value="isMuted ? 0 : volume"
+            @input="handleVolumeInput"
+            class="h-1 w-24 bg-gray-600 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white"
+          >
         </div>
       </div>
     </div>

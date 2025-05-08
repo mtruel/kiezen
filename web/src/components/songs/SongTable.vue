@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Song } from '../../api'
+import { PlayIcon, PauseIcon, TrashIcon } from '@heroicons/vue/24/solid'
 
 const props = defineProps<{
   songs: Song[]
@@ -54,17 +55,13 @@ const isCurrentSong = (song: Song) => {
             <button v-if="!isDummySong(song)" 
                     @click="emit('play-song', song)" 
                     class="px-3 py-1 bg-emerald-600 text-white rounded hover:bg-emerald-700 transition-colors flex items-center justify-center">
-              <svg v-if="isCurrentSong(song) && isPlaying" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <rect x="6" y="4" width="4" height="16" fill="currentColor" />
-                <rect x="14" y="4" width="4" height="16" fill="currentColor" />
-              </svg>
-              <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <polygon points="5,3 19,12 5,21" fill="currentColor" />
-              </svg>
+              <PauseIcon v-if="isCurrentSong(song) && isPlaying" class="h-5 w-5" />
+              <PlayIcon v-else class="h-5 w-5" />
             </button>
             <button @click="emit('delete-song', song.id)" 
                     class="w-20 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition-colors flex items-center justify-center">
-              {{ songToDelete === song.id ? '🗑️' : 'Delete' }}
+              <TrashIcon v-if="songToDelete === song.id" class="h-5 w-5" />
+              <span v-else>Delete</span>
             </button>
           </div>
         </td>
