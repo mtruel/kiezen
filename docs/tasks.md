@@ -14,18 +14,28 @@
 - [ ] Add authentication and authorization
 - [ ] Add rate limiting for API endpoints
 - [ ] Implement proper logging system
+- [ ] Implement library sync functionality
+- [ ] Add bulk file upload endpoint
+- [ ] Implement file deduplication system
+- [ ] Add sync status tracking
+- [ ] Implement file metadata comparison
+- [ ] Add conflict resolution logic
 
 ### Web Application
 - [x] Basic API integration
 - [x] Basic song list display
 - [x] Basic file upload functionality
 - [x] Basic song creation and deletion
-- [ ] Implement proper error handling for API calls
-- [ ] Add loading states for async operations
+- [x] Add loading states for async operations
+- [x] Add user feedback for actions
+- [x] Implement proper error handling for API calls
 - [ ] Implement proper form validation
-- [ ] Add user feedback for actions
 - [ ] Implement proper file upload progress indication
 - [ ] Add proper error messages for failed operations
+- [ ] Add song type indicators (Dummy vs Regular)
+- [ ] Implement song URL display and linking
+- [ ] Add confirmation for delete actions
+- [ ] Implement retry mechanism for failed operations
 
 ## Future Tasks
 
@@ -64,9 +74,16 @@
 - [ ] Implement drag-and-drop support
 - [ ] Add keyboard shortcuts
 - [ ] Implement system tray integration
+- [ ] Add library sync feature
+- [ ] Implement folder selection and monitoring
+- [ ] Add background sync process
+- [ ] Implement sync status tracking
+- [ ] Add conflict resolution handling
+- [ ] Create sync progress indicators
 
 ### Shared
 - [x] Basic TypeScript interfaces for API
+- [x] Song type definitions
 - [ ] Create shared types and interfaces
 - [ ] Implement shared utilities
 - [ ] Add shared components library
