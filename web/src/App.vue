@@ -26,15 +26,23 @@ const playSong = (song: Song) => {
 }
 
 const playNext = () => {
-  if (currentSongIndex.value < songs.value.length - 1) {
-    currentSongIndex.value++
+  let nextIndex = currentSongIndex.value + 1
+  while (nextIndex < songs.value.length && songs.value[nextIndex].isDummy === 1) {
+    nextIndex++
+  }
+  if (nextIndex < songs.value.length) {
+    currentSongIndex.value = nextIndex
     currentSong.value = songs.value[currentSongIndex.value]
   }
 }
 
 const playPrevious = () => {
-  if (currentSongIndex.value > 0) {
-    currentSongIndex.value--
+  let prevIndex = currentSongIndex.value - 1
+  while (prevIndex >= 0 && songs.value[prevIndex].isDummy === 1) {
+    prevIndex--
+  }
+  if (prevIndex >= 0) {
+    currentSongIndex.value = prevIndex
     currentSong.value = songs.value[currentSongIndex.value]
   }
 }

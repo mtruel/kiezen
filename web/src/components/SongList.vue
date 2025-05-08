@@ -3,18 +3,35 @@ import { ref, onMounted } from 'vue'
 import { api, type Song } from '../api'
 
 const songs = ref<Song[]>([])
+const error = ref<string | null>(null)
+const isLoading = ref(false)
 
 const emit = defineEmits<{
   (e: 'play-song', song: Song): void
 }>()
 
 const fetchSongs = async () => {
-  songs.value = await api.getSongs()
+  try {
+    isLoading.value = true
+    error.value = null
+    songs.value = await api.getSongs()
+  } catch (err) {
+    error.value = 'Failed to load songs. Please check your connection and try again.'
+    console.error('Error fetching songs:', err)
+  } finally {
+    isLoading.value = false
+  }
 }
 
 const deleteSong = async (songId: string) => {
-  await api.deleteSong(songId)
-  await fetchSongs()
+  try {
+    error.value = null
+    await api.deleteSong(songId)
+    await fetchSongs()
+  } catch (err) {
+    error.value = 'Failed to delete song. Please try again.'
+    console.error('Error deleting song:', err)
+  }
 }
 
 const playSong = (song: Song) => {
@@ -43,7 +60,16 @@ export default {
   <div class="song-list">
     <h2>Songs</h2>
     
-    <table>
+    <div v-if="error" class="error-container">
+      <p class="error-message">{{ error }}</p>
+      <button @click="fetchSongs" class="retry-btn">Retry</button>
+    </div>
+
+    <div v-if="isLoading" class="loading-message">
+      Loading songs...
+    </div>
+    
+    <table v-else-if="!error">
       <thead>
         <tr>
           <th>Title</th>
@@ -157,5 +183,42 @@ button {
   background-color: #e9ecef;
   text-decoration: none;
   border-color: #dee2e6;
+}
+
+.error-container {
+  background-color: #ffeeee;
+  border: 1px solid #ff4444;
+  border-radius: 4px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.error-message {
+  color: #ff4444;
+  margin: 0;
+}
+
+.retry-btn {
+  background-color: #ff4444;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.retry-btn:hover {
+  background-color: #ff3333;
+}
+
+.loading-message {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+  font-style: italic;
 }
 </style> 
