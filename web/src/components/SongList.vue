@@ -5,6 +5,8 @@ import { api, type Song } from '../api'
 const songs = ref<Song[]>([])
 const error = ref<string | null>(null)
 const isLoading = ref(false)
+const songToDelete = ref<string | null>(null)
+const deleteTimeout = ref<number | null>(null)
 
 const emit = defineEmits<{
   (e: 'play-song', song: Song): void
@@ -28,9 +30,29 @@ const deleteSong = async (songId: string) => {
     error.value = null
     await api.deleteSong(songId)
     await fetchSongs()
+    songToDelete.value = null
+    if (deleteTimeout.value) {
+      clearTimeout(deleteTimeout.value)
+      deleteTimeout.value = null
+    }
   } catch (err) {
     error.value = 'Failed to delete song. Please try again.'
     console.error('Error deleting song:', err)
+  }
+}
+
+const handleDeleteClick = (songId: string) => {
+  if (songToDelete.value === songId) {
+    deleteSong(songId)
+  } else {
+    songToDelete.value = songId
+    if (deleteTimeout.value) {
+      clearTimeout(deleteTimeout.value)
+    }
+    deleteTimeout.value = window.setTimeout(() => {
+      songToDelete.value = null
+      deleteTimeout.value = null
+    }, 3000)
   }
 }
 
@@ -102,9 +124,9 @@ export default {
                       class="px-3 py-1 bg-emerald-600 text-white rounded hover:bg-emerald-700 transition-colors">
                 ▶
               </button>
-              <button @click="deleteSong(song.id)" 
-                      class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition-colors">
-                Delete
+              <button @click="handleDeleteClick(song.id)" 
+                      class="w-20 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition-colors flex items-center justify-center">
+                {{ songToDelete === song.id ? '🗑️' : 'Delete' }}
               </button>
             </div>
           </td>
