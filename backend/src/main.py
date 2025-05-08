@@ -5,6 +5,10 @@ import os
 import uvicorn
 from . import models, routes
 from .database import engine
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # Create database tables
 models.Base.metadata.create_all(bind=engine)
@@ -12,9 +16,14 @@ models.Base.metadata.create_all(bind=engine)
 app = FastAPI(title="Kiezen Backend", version="1.0.0")
 
 # Configure CORS
+allowed_origins = [
+    os.getenv("FRONTEND_DEV_URL", "http://localhost:5173"),  # Vite default dev server
+    os.getenv("FRONTEND_PROD_URL", "http://localhost:3000"),  # Production URL
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
