@@ -14,6 +14,11 @@
     "test:web": "cd web && npm run test"
   },
   "devDependencies": {
+    "@vue/tsconfig": "^0.7.0",
     "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.1.5",
+    "tailwindcss": "^4.1.5"
   }
-} 
+}
