@@ -4,10 +4,16 @@ import { type Song } from '../api'
 
 const props = defineProps<{
   song: Song | null
+  isPlaying: boolean
+}>()
+
+const emit = defineEmits<{
+  (e: 'next'): void
+  (e: 'previous'): void
+  (e: 'update:isPlaying', value: boolean): void
 }>()
 
 const audio = ref<HTMLAudioElement | null>(null)
-const isPlaying = ref(false)
 const currentTime = ref(0)
 const duration = ref(0)
 
@@ -33,7 +39,6 @@ const cleanup = () => {
 watch(() => props.song, (newSong, oldSong) => {
   if (oldSong && newSong && oldSong.id !== newSong.id) {
     cleanup()
-    isPlaying.value = false
     currentTime.value = 0
     duration.value = 0
   }
@@ -41,7 +46,7 @@ watch(() => props.song, (newSong, oldSong) => {
     nextTick(() => {
       if (audio.value) {
         audio.value.play().then(() => {
-          isPlaying.value = true
+          emit('update:isPlaying', true)
         }).catch(error => {
           console.error('Error playing audio:', error)
         })
@@ -54,11 +59,21 @@ watch(() => audioUrl.value, (newUrl) => {
   if (newUrl && audio.value) {
     nextTick(() => {
       audio.value.play().then(() => {
-        isPlaying.value = true
+        emit('update:isPlaying', true)
       }).catch(error => {
         console.error('Error playing audio:', error)
       })
     })
+  }
+})
+
+watch(() => props.isPlaying, (newValue) => {
+  if (!audio.value) return
+  
+  if (newValue) {
+    audio.value.play()
+  } else {
+    audio.value.pause()
   }
 })
 
@@ -74,13 +89,7 @@ const formattedTime = (time: number) => {
 
 const togglePlay = () => {
   if (!audio.value) return
-  
-  if (isPlaying.value) {
-    audio.value.pause()
-  } else {
-    audio.value.play()
-  }
-  isPlaying.value = !isPlaying.value
+  emit('update:isPlaying', !props.isPlaying)
 }
 
 const handleTimeUpdate = () => {
@@ -94,7 +103,7 @@ const handleLoadedMetadata = () => {
 }
 
 const handleEnded = () => {
-  isPlaying.value = false
+  emit('update:isPlaying', false)
   currentTime.value = 0
 }
 
@@ -111,11 +120,6 @@ const restart = () => {
   audio.value.currentTime = 0
   currentTime.value = 0
 }
-
-const emit = defineEmits<{
-  (e: 'next'): void
-  (e: 'previous'): void
-}>()
 
 const handlePrevious = () => {
   if (currentTime.value > 3) {
@@ -145,23 +149,25 @@ const handlePrevious = () => {
       <div class="flex-1 flex items-center gap-4">
         <button @click="handlePrevious" class="p-2 rounded-full bg-slate-700 hover:bg-slate-600 transition-colors">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+            <rect x="3" y="5" width="2" height="14" rx="1" fill="currentColor" />
+            <polygon points="5,12 19,5 19,19" fill="currentColor" />
           </svg>
         </button>
         
         <button @click="togglePlay" class="p-3 rounded-full bg-slate-700 hover:bg-slate-600 transition-colors">
           <svg v-if="isPlaying" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <rect x="7" y="5" width="3" height="14" fill="currentColor" />
+            <rect x="14" y="5" width="3" height="14" fill="currentColor" />
           </svg>
           <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <polygon points="6,4 20,12 6,20" fill="currentColor" />
           </svg>
         </button>
 
         <button @click="$emit('next')" class="p-2 rounded-full bg-slate-700 hover:bg-slate-600 transition-colors">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+            <rect x="19" y="5" width="2" height="14" rx="1" fill="currentColor" />
+            <polygon points="19,12 5,5 5,19" fill="currentColor" />
           </svg>
         </button>
 

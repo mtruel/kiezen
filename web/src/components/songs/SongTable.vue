@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import type { Song } from '../../api'
 
-defineProps<{
+const props = defineProps<{
   songs: Song[]
   songToDelete: string | null
+  currentSong: Song | null
+  isPlaying: boolean
 }>()
 
 const emit = defineEmits<{
@@ -13,6 +15,10 @@ const emit = defineEmits<{
 
 const isDummySong = (song: Song) => {
   return song.isDummy === 1
+}
+
+const isCurrentSong = (song: Song) => {
+  return props.currentSong?.id === song.id
 }
 </script>
 
@@ -47,8 +53,14 @@ const isDummySong = (song: Song) => {
           <div class="flex items-center gap-2">
             <button v-if="!isDummySong(song)" 
                     @click="emit('play-song', song)" 
-                    class="px-3 py-1 bg-emerald-600 text-white rounded hover:bg-emerald-700 transition-colors">
-              ▶
+                    class="px-3 py-1 bg-emerald-600 text-white rounded hover:bg-emerald-700 transition-colors flex items-center justify-center">
+              <svg v-if="isCurrentSong(song) && isPlaying" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <rect x="6" y="4" width="4" height="16" fill="currentColor" />
+                <rect x="14" y="4" width="4" height="16" fill="currentColor" />
+              </svg>
+              <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <polygon points="5,3 19,12 5,21" fill="currentColor" />
+              </svg>
             </button>
             <button @click="emit('delete-song', song.id)" 
                     class="w-20 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition-colors flex items-center justify-center">

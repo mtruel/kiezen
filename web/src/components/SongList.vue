@@ -1,5 +1,5 @@
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, defineEmits, PropType } from 'vue'
 import { ref, onMounted } from 'vue'
 import { api, type Song } from '../api'
 import { useErrorHandler } from '../composables/useErrorHandler'
@@ -12,6 +12,16 @@ export default defineComponent({
   components: {
     SongTable,
     ErrorMessage
+  },
+  props: {
+    currentSong: {
+      type: Object as PropType<Song | null>,
+      default: null
+    },
+    isPlaying: {
+      type: Boolean,
+      default: false
+    }
   },
   setup() {
     const { error, handleError, clearError } = useErrorHandler()
@@ -105,6 +115,8 @@ export default defineComponent({
       v-else-if="!error"
       :songs="songs"
       :song-to-delete="songToDelete"
+      :current-song="currentSong"
+      :is-playing="isPlaying"
       @play-song="$emit('play-song', $event)"
       @delete-song="handleDeleteClick"
     />

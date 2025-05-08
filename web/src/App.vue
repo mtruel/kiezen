@@ -10,6 +10,7 @@ const songListRef = ref<InstanceType<typeof SongList> | null>(null)
 const songs = ref<Song[]>([])
 const currentSong = ref<Song | null>(null)
 const currentSongIndex = ref(-1)
+const isPlaying = ref(false)
 const showDebug = ref(false)
 const consoleMessages = ref<Array<{ type: string; message: string; timestamp: string; source?: string }>>([])
 
@@ -134,8 +135,14 @@ const handleSongAdded = () => {
 }
 
 const playSong = (song: Song) => {
-  currentSong.value = song
-  currentSongIndex.value = songs.value.findIndex(s => s.id === song.id)
+  if (currentSong.value?.id === song.id) {
+    // If clicking the same song, toggle play/pause
+    isPlaying.value = !isPlaying.value
+  } else {
+    currentSong.value = song
+    currentSongIndex.value = songs.value.findIndex(s => s.id === song.id)
+    isPlaying.value = true
+  }
 }
 
 const playNext = () => {
@@ -196,13 +203,19 @@ fetchSongs()
           <AddSongForm @song-added="handleSongAdded" />
         </div>
         <div class="content-column lg:col-span-2">
-          <SongList ref="songListRef" @play-song="playSong" />
+          <SongList 
+            ref="songListRef" 
+            :current-song="currentSong"
+            :is-playing="isPlaying"
+            @play-song="playSong" 
+          />
         </div>
       </div>
     </main>
 
     <MusicPlayer 
       :song="currentSong" 
+      v-model:is-playing="isPlaying"
       @next="playNext"
       @previous="playPrevious"
     />
