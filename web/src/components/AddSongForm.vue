@@ -122,9 +122,26 @@ const submitUploadForm = async () => {
     }
     success.value = 'Song uploaded successfully!'
     emit('song-added')
-  } catch (err) {
-    error.value = 'Failed to upload song. Please try again.'
-    console.error(err)
+  } catch (err: any) {
+    if (err.response?.data?.detail) {
+      const errorDetail = err.response.data.detail
+      switch (errorDetail.error) {
+        case 'INVALID_FILE_TYPE':
+          error.value = errorDetail.message
+          break
+        case 'DUPLICATE_FILE':
+          error.value = `${errorDetail.message} (${errorDetail.existing_song.title} by ${errorDetail.existing_song.artist})`
+          break
+        case 'UPLOAD_FAILED':
+          error.value = errorDetail.message
+          break
+        default:
+          error.value = 'Failed to upload song. Please try again.'
+      }
+    } else {
+      error.value = 'Failed to upload song. Please try again.'
+    }
+    console.error('Upload error:', err)
   }
 }
 </script>

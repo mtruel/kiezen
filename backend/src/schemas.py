@@ -10,6 +10,7 @@ class SongBase(BaseModel):
     is_dummy: int = 0  # 0 for real songs, 1 for dummy songs
     link: Optional[str] = None
     file_path: Optional[str] = None
+    file_hash: Optional[str] = None  # Hash of the file for deduplication
 
 class SongCreate(SongBase):
     pass

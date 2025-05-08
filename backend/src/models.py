@@ -12,4 +12,5 @@ class Song(Base):
     year = Column(Integer, nullable=True)
     file_path = Column(String, nullable=True)  # Path to the music file
     is_dummy = Column(Integer, default=0)  # 0 for real songs, 1 for dummy songs
-    link = Column(String, nullable=True)  # For dummy songs with external links 
+    link = Column(String, nullable=True)  # For dummy songs with external links
+    file_hash = Column(String, nullable=True)  # Hash of the file for deduplication 
