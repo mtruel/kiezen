@@ -72,7 +72,8 @@ async def process_file(file: UploadFile, db: Session):
             year=int(tags.get("year", "0")) if tags.get("year") and tags.get("year").isdigit() else None,  # Optional, only convert if it's a valid number
             file_path=file.filename,  # Store only the filename
             is_dummy=0,  # Set to 0 for uploaded files
-            file_hash=file_hash  # Add the file hash
+            file_hash=file_hash,  # Add the file hash
+            duration=tags.get("duration"),
         )
         
         uploaded_song = crud.create_song(db=db, song=song_data)

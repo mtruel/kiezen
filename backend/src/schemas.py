@@ -11,6 +11,7 @@ class SongBase(BaseModel):
     link: Optional[str] = None
     file_path: Optional[str] = None
     file_hash: Optional[str] = None  # Hash of the file for deduplication
+    duration: Optional[float] = None
 
 class SongCreate(SongBase):
     pass

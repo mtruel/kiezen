@@ -66,7 +66,7 @@ const isCurrentSong = (song: Song) => {
           </div>
         </td>
         <td class="p-3 border-b text-sm text-gray-600">
-          {{ song.metadata?.duration ? `${Math.floor(song.metadata.duration / 60)}:${Math.floor(song.metadata.duration % 60).toString().padStart(2, '0')}` : '-' }}
+          {{ song.duration ? `${Math.floor(song.duration / 60)}:${Math.floor(song.duration % 60).toString().padStart(2, '0')}` : '-' }}
         </td>
         <td class="p-3 border-b">
           <button @click="emit('delete-song', song.id)" 

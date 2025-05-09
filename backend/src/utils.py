@@ -134,6 +134,10 @@ def read_audio_tags(file_path: str) -> Dict[str, Any]:
                     except Exception as e:
                         print(f"Error parsing date: {str(e)}")
                 
+        # Add duration
+        if hasattr(audio, 'info') and hasattr(audio.info, 'length'):
+            tags["duration"] = float(audio.info.length)
+        
         # Clean up empty values and strip whitespace
         return {k: v.strip() if isinstance(v, str) else v for k, v in tags.items() if v}
     except Exception as e:

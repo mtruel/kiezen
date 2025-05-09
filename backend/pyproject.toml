@@ -18,6 +18,7 @@ dependencies = [
     "pytest-asyncio>=0.21.0",
     "mutagen>=1.47.0",
     "python-magic>=0.4.27",
+    "alembic>=1.14.1",
 ]
 
 [build-system]
