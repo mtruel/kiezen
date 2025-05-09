@@ -19,15 +19,6 @@ def get_db():
 
 async def process_file(file: UploadFile, db: Session):
     try:
-        # Validate file type
-        allowed_types = ["audio/mpeg", "audio/wav", "audio/ogg", "audio/flac", "audio/mp4", "audio/aac"]
-        if file.content_type not in allowed_types:
-            return {
-                "filename": file.filename,
-                "error": "INVALID_FILE_TYPE",
-                "message": f"File type {file.content_type} is not supported. Supported types are: {', '.join(allowed_types)}"
-            }
-
         # Create the music files directory if it doesn't exist
         music_dir = "music_files"
         os.makedirs(music_dir, exist_ok=True)
@@ -35,9 +26,20 @@ async def process_file(file: UploadFile, db: Session):
         # Create a safe filename
         file_location = os.path.join(music_dir, file.filename)
         
-        # Save the file
+        # Save the file temporarily
         with open(file_location, "wb+") as file_object:
             shutil.copyfileobj(file.file, file_object)
+        
+        # Validate the file type
+        is_valid, error_message = utils.validate_music_file(file_location)
+        if not is_valid:
+            # Clean up the invalid file
+            os.remove(file_location)
+            return {
+                "filename": file.filename,
+                "error": "INVALID_FILE_TYPE",
+                "message": error_message
+            }
         
         # Check for duplicates
         is_duplicate, existing_song = utils.find_duplicates(db, file_location)
@@ -55,13 +57,19 @@ async def process_file(file: UploadFile, db: Session):
                 }
             }
         
+        # Read audio tags
+        tags = utils.read_audio_tags(file_location)
+        
         # Calculate file hash
         file_hash = utils.calculate_file_hash(file_location)
         
         # Create a song entry in the database
         song_data = schemas.SongCreate(
-            title=os.path.splitext(file.filename)[0],  # Use filename as title
-            artist="Unknown",  # Default value
+            title=tags.get("title", os.path.splitext(file.filename)[0]),  # Use tags or filename as title
+            artist=tags.get("artist", "Unknown"),  # Use tags or default value
+            album=tags.get("album"),  # Optional
+            genre=tags.get("genre"),  # Optional
+            year=int(tags.get("year", "0")) if tags.get("year") and tags.get("year").isdigit() else None,  # Optional, only convert if it's a valid number
             file_path=file.filename,  # Store only the filename
             is_dummy=0,  # Set to 0 for uploaded files
             file_hash=file_hash  # Add the file hash
