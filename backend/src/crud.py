@@ -25,12 +25,32 @@ def update_song(db: Session, song_id: int, song: schemas.SongCreate):
     return db_song
 
 def delete_song(db: Session, song_id: int):
-    db_song = db.query(models.Song).filter(models.Song.id == song_id).first()
-    if db_song and db_song.file_path:
-        # Delete the associated file if it exists
-        if os.path.exists(db_song.file_path):
-            os.remove(db_song.file_path)
-    if db_song:
+    try:
+        db_song = db.query(models.Song).filter(models.Song.id == song_id).first()
+        if not db_song:
+            return None
+
+        # Store the file path before deleting the record
+        file_path = db_song.file_path
+
+        # First delete the database record
         db.delete(db_song)
         db.commit()
-    return db_song 
+
+        # Then try to delete the file if it exists
+        if file_path:
+            try:
+                # Make sure we're using the correct path
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+                else:
+                    print(f"Warning: File not found at path {file_path}")
+            except OSError as e:
+                # Log the error but don't fail the deletion since the DB record is already gone
+                print(f"Warning: Failed to delete file {file_path}: {str(e)}")
+        
+        return db_song
+    except Exception as e:
+        db.rollback()
+        print(f"Error deleting song: {str(e)}")
+        raise 

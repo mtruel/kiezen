@@ -23,16 +23,13 @@ export default defineComponent({
       default: false
     }
   },
-  setup() {
+  emits: ['play-song', 'song-deleted'],
+  setup(props, { emit }) {
     const { error, handleError, clearError } = useErrorHandler()
     const { isLoading, withLoading } = useLoadingState()
     const songs = ref<Song[]>([])
     const songToDelete = ref<string | null>(null)
     const deleteTimeout = ref<number | null>(null)
-
-    const emit = defineEmits<{
-      (e: 'play-song', song: Song): void
-    }>()
 
     const fetchSongs = async () => {
       try {
@@ -46,6 +43,17 @@ export default defineComponent({
     const deleteSong = async (songId: string) => {
       try {
         clearError()
+        // First check if the song exists
+        const song = songs.value.find(s => s.id === songId)
+        if (!song) {
+          handleError(new Error('Song not found'), 'Song not found. It may have been already deleted.')
+          return
+        }
+
+        // Always emit the deletion event to update the queue
+        emit('song-deleted', songId)
+
+        // Then proceed with the deletion
         await withLoading(() => api.deleteSong(songId))
         await fetchSongs()
         songToDelete.value = null
@@ -53,8 +61,15 @@ export default defineComponent({
           clearTimeout(deleteTimeout.value)
           deleteTimeout.value = null
         }
-      } catch (err) {
-        handleError(err, 'Failed to delete song. Please try again.')
+      } catch (err: any) {
+        console.error('Delete error:', err)
+        if (err.response?.data?.detail) {
+          handleError(err, err.response.data.detail)
+        } else if (err.response?.status === 404) {
+          handleError(err, 'Song not found. It may have been already deleted.')
+        } else {
+          handleError(err, `Failed to delete song: ${err.message || 'Unknown error'}`)
+        }
       }
     }
 

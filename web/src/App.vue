@@ -4,15 +4,15 @@ import SongList from './components/SongList.vue'
 import AddSongForm from './components/AddSongForm.vue'
 import MusicPlayer from './components/MusicPlayer.vue'
 import { api, type Song } from './api'
+import { usePlayerStore } from './stores/playerStore'
 
 const activeTab = ref('songs')
 const songListRef = ref<InstanceType<typeof SongList> | null>(null)
 const songs = ref<Song[]>([])
-const currentSong = ref<Song | null>(null)
-const currentSongIndex = ref(-1)
-const isPlaying = ref(false)
 const showDebug = ref(false)
 const consoleMessages = ref<Array<{ type: string; message: string; timestamp: string; source?: string }>>([])
+
+const playerStore = usePlayerStore()
 
 // Override console methods to capture messages
 const originalConsole = {
@@ -119,7 +119,7 @@ const clearConsole = () => {
 
 // Debug information
 const debugInfo = computed(() => ({
-  currentSong: currentSong.value,
+  currentSong: playerStore.currentSong,
   totalSongs: songs.value.length,
   activeTab: activeTab.value,
   timestamp: new Date().toISOString()
@@ -127,43 +127,29 @@ const debugInfo = computed(() => ({
 
 const fetchSongs = async () => {
   songs.value = await api.getSongs()
+  playerStore.setQueue(songs.value)
 }
 
-const handleSongAdded = () => {
-  fetchSongs()
+const handleSongAdded = async () => {
+  const newSongs = await api.getSongs()
+  songs.value = newSongs
+  // Only add the new song to the queue if it's not already there
+  const lastSong = newSongs[0] // New songs are added at the beginning
+  if (lastSong && !playerStore.queue.some(song => song.id === lastSong.id)) {
+    playerStore.queue.push(lastSong)
+  }
   songListRef.value?.fetchSongs()
 }
 
+const handleSongDeleted = (songId: string) => {
+  playerStore.handleSongDeleted(songId)
+}
+
 const playSong = (song: Song) => {
-  if (currentSong.value?.id === song.id) {
-    // If clicking the same song, toggle play/pause
-    isPlaying.value = !isPlaying.value
+  if (playerStore.currentSongId === song.id) {
+    playerStore.togglePlay()
   } else {
-    currentSong.value = song
-    currentSongIndex.value = songs.value.findIndex(s => s.id === song.id)
-    isPlaying.value = true
-  }
-}
-
-const playNext = () => {
-  let nextIndex = currentSongIndex.value + 1
-  while (nextIndex < songs.value.length && songs.value[nextIndex].isDummy === 1) {
-    nextIndex++
-  }
-  if (nextIndex < songs.value.length) {
-    currentSongIndex.value = nextIndex
-    currentSong.value = songs.value[currentSongIndex.value]
-  }
-}
-
-const playPrevious = () => {
-  let prevIndex = currentSongIndex.value - 1
-  while (prevIndex >= 0 && songs.value[prevIndex].isDummy === 1) {
-    prevIndex--
-  }
-  if (prevIndex >= 0) {
-    currentSongIndex.value = prevIndex
-    currentSong.value = songs.value[currentSongIndex.value]
+    playerStore.playSong(song)
   }
 }
 
@@ -205,19 +191,20 @@ fetchSongs()
         <div class="content-column lg:col-span-2">
           <SongList 
             ref="songListRef" 
-            :current-song="currentSong"
-            :is-playing="isPlaying"
-            @play-song="playSong" 
+            :current-song="playerStore.currentSong"
+            :is-playing="playerStore.isPlaying"
+            @play-song="playSong"
+            @song-deleted="handleSongDeleted"
           />
         </div>
       </div>
     </main>
 
     <MusicPlayer 
-      :song="currentSong" 
-      v-model:is-playing="isPlaying"
-      @next="playNext"
-      @previous="playPrevious"
+      :song="playerStore.currentSong" 
+      v-model:is-playing="playerStore.isPlaying"
+      @next="playerStore.playNext"
+      @previous="playerStore.playPrevious"
     />
   </div>
 </template>

@@ -10,6 +10,7 @@ export interface Song {
   filePath?: string
   url?: string
   link?: string  // Add link field to match backend
+  album?: string  // Add album field to match backend
   metadata: {
     duration?: number
     genre?: string

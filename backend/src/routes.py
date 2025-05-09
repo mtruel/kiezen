@@ -112,8 +112,12 @@ def update_song(song_id: int, song: schemas.SongCreate, db: Session = Depends(ge
     return db_song
 
 @router.delete("/songs/{song_id}")
-def delete_song(song_id: int, db: Session = Depends(get_db)):
-    db_song = crud.delete_song(db, song_id=song_id)
-    if db_song is None:
-        raise HTTPException(status_code=404, detail="Song not found")
-    return {"message": "Song deleted successfully"} 
+def delete_song(song_id: str, db: Session = Depends(get_db)):
+    try:
+        song_id_int = int(song_id)
+        db_song = crud.delete_song(db, song_id=song_id_int)
+        if db_song is None:
+            raise HTTPException(status_code=404, detail="Song not found")
+        return {"message": "Song deleted successfully"}
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid song ID format") 

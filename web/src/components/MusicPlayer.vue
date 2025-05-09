@@ -7,8 +7,11 @@ import {
   PlayIcon, 
   PauseIcon, 
   SpeakerWaveIcon, 
-  SpeakerXMarkIcon 
+  SpeakerXMarkIcon,
+  QueueListIcon,
+  XMarkIcon
 } from '@heroicons/vue/24/solid'
+import { usePlayerStore } from '../stores/playerStore'
 
 const props = defineProps<{
   song: Song | null
@@ -21,6 +24,8 @@ const emit = defineEmits<{
   (e: 'update:isPlaying', value: boolean): void
 }>()
 
+const playerStore = usePlayerStore()
+const showQueue = ref(false)
 const audio = ref<HTMLAudioElement | null>(null)
 const currentTime = ref(0)
 const duration = ref(0)
@@ -44,14 +49,19 @@ const cleanup = () => {
     audio.value.pause()
     audio.value.src = ''
     audio.value.load()
+    audio.value.currentTime = 0
+    duration.value = 0
+    currentTime.value = 0
   }
 }
 
 watch(() => props.song, (newSong, oldSong) => {
+  if (!newSong) {
+    cleanup()
+    return
+  }
   if (oldSong && newSong && oldSong.id !== newSong.id) {
     cleanup()
-    currentTime.value = 0
-    duration.value = 0
   }
   if (newSong) {
     nextTick(() => {
@@ -69,11 +79,13 @@ watch(() => props.song, (newSong, oldSong) => {
 watch(() => audioUrl.value, (newUrl) => {
   if (newUrl && audio.value) {
     nextTick(() => {
-      audio.value.play().then(() => {
-        emit('update:isPlaying', true)
-      }).catch(error => {
-        console.error('Error playing audio:', error)
-      })
+      if (audio.value) {
+        audio.value.play().then(() => {
+          emit('update:isPlaying', true)
+        }).catch(error => {
+          console.error('Error playing audio:', error)
+        })
+      }
     })
   }
 })
@@ -140,6 +152,7 @@ const handleLoadedMetadata = () => {
 const handleEnded = () => {
   emit('update:isPlaying', false)
   currentTime.value = 0
+  playerStore.playNext()
 }
 
 const seek = (event: Event) => {
@@ -208,6 +221,19 @@ const handleVolumeInput = (event: Event) => {
   const target = event.target as HTMLInputElement
   setVolume(parseFloat(target.value))
 }
+
+const removeFromQueue = (songId: string) => {
+  const currentIndex = playerStore.queue.findIndex(song => song.id === songId)
+  if (currentIndex !== -1) {
+    const newQueue = [...playerStore.queue]
+    newQueue.splice(currentIndex, 1)
+    playerStore.setQueue(newQueue)
+  }
+}
+
+const playFromQueue = (song: Song) => {
+  playerStore.playSong(song)
+}
 </script>
 
 <template>
@@ -252,6 +278,12 @@ const handleVolumeInput = (event: Event) => {
           >
           <span class="text-sm text-gray-400">{{ formattedTime(duration) }}</span>
         </div>
+
+        <!-- Queue button -->
+        <button @click="showQueue = !showQueue" class="p-2 flex items-center justify-center rounded-full bg-slate-700 hover:bg-slate-600 transition-colors">
+          <QueueListIcon class="h-6 w-6" />
+        </button>
+
         <!-- Volume control -->
         <div class="flex items-center gap-2 ml-auto">
           <button @click="toggleMute" class="p-2 flex items-center justify-center rounded-full bg-slate-700 hover:bg-slate-600 transition-colors">
@@ -267,6 +299,41 @@ const handleVolumeInput = (event: Event) => {
             @input="handleVolumeInput"
             class="h-1 w-24 bg-gray-600 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white"
           >
+        </div>
+      </div>
+    </div>
+
+    <!-- Queue panel -->
+    <div v-if="showQueue" class="absolute bottom-full right-0 mb-2 w-96 bg-slate-800 rounded-lg shadow-lg overflow-hidden">
+      <div class="p-4 border-b border-slate-700 flex justify-between items-center">
+        <h3 class="text-lg font-semibold">Queue</h3>
+        <button @click="showQueue = false" class="p-1 hover:bg-slate-700 rounded-full transition-colors">
+          <XMarkIcon class="h-5 w-5" />
+        </button>
+      </div>
+      <div class="max-h-96 overflow-y-auto">
+        <div v-for="(queuedSong, index) in playerStore.queue" :key="queuedSong.id" 
+             class="p-3 hover:bg-slate-700 transition-colors flex items-center gap-3"
+             :class="{ 
+               'bg-slate-700': queuedSong.id === song?.id,
+               'bg-slate-600': playerStore.isPlayed(queuedSong.id) && queuedSong.id !== song?.id
+             }">
+          <span class="text-gray-400 w-6">{{ index + 1 }}</span>
+          <div class="flex-1 min-w-0">
+            <div class="font-medium truncate">{{ queuedSong.title }}</div>
+            <div class="text-sm text-gray-400 truncate">{{ queuedSong.artist }}</div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button v-if="queuedSong.id !== song?.id" 
+                    @click="playFromQueue(queuedSong)"
+                    class="p-1 hover:bg-slate-600 rounded-full transition-colors">
+              <PlayIcon class="h-4 w-4" />
+            </button>
+            <button @click="removeFromQueue(queuedSong.id)"
+                    class="p-1 hover:bg-slate-600 rounded-full transition-colors">
+              <XMarkIcon class="h-4 w-4" />
+            </button>
+          </div>
         </div>
       </div>
     </div>

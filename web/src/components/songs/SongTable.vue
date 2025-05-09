@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { Song } from '../../api'
-import { PlayIcon, PauseIcon, TrashIcon } from '@heroicons/vue/24/solid'
+import { PlayIcon, PauseIcon } from '@heroicons/vue/24/solid'
+import { TrashIcon } from '@heroicons/vue/24/outline'
+import { usePlayerStore } from '../../stores/playerStore'
 
 const props = defineProps<{
   songs: Song[]
@@ -13,6 +15,8 @@ const emit = defineEmits<{
   (e: 'play-song', song: Song): void
   (e: 'delete-song', songId: string): void
 }>()
+
+const playerStore = usePlayerStore()
 
 const isDummySong = (song: Song) => {
   return song.isDummy === 1
@@ -27,43 +31,53 @@ const isCurrentSong = (song: Song) => {
   <table class="w-full border-collapse">
     <thead>
       <tr>
-        <th class="p-3 text-left border-b bg-gray-50">Title</th>
-        <th class="p-3 text-left border-b bg-gray-50">Artist</th>
-        <th class="p-3 text-left border-b bg-gray-50">Type</th>
-        <th class="p-3 text-left border-b bg-gray-50">URL</th>
-        <th class="p-3 text-left border-b bg-gray-50">Actions</th>
+        <th class="p-3 text-left border-b bg-gray-50 w-16"></th>
+        <th class="p-3 text-left border-b bg-gray-50">Song</th>
+        <th class="p-3 text-left border-b bg-gray-50">Details</th>
+        <th class="p-3 text-left border-b bg-gray-50 w-24">Duration</th>
+        <th class="p-3 text-left border-b bg-gray-50 w-16"></th>
       </tr>
     </thead>
     <tbody>
-      <tr v-for="song in songs" :key="song.id" class="hover:bg-gray-50">
-        <td class="p-3 border-b">{{ song.title }}</td>
-        <td class="p-3 border-b">{{ song.artist }}</td>
-        <td class="p-3 border-b">{{ isDummySong(song) ? 'Dummy' : 'Regular' }}</td>
+      <tr v-for="song in songs" :key="song.id" 
+          class="hover:bg-gray-50"
+          :class="{
+            'bg-emerald-50': isCurrentSong(song),
+            'bg-gray-50': playerStore.isPlayed(song.id) && !isCurrentSong(song)
+          }">
         <td class="p-3 border-b">
-          <a v-if="isDummySong(song) && song.url" 
-             :href="song.url" 
-             target="_blank" 
-             rel="noopener noreferrer"
-             class="inline-block px-2 py-1 bg-gray-50 border border-gray-200 rounded font-mono text-sm max-w-[300px] truncate hover:bg-gray-100 hover:border-gray-300 transition-colors"
-             :title="song.url">
-            🔗 {{ song.url }}
-          </a>
-          <span v-else>-</span>
+          <button v-if="!isDummySong(song)" 
+                  @click="emit('play-song', song)" 
+                  class="p-2 bg-emerald-600 text-white rounded-full hover:bg-emerald-700 transition-colors flex items-center justify-center">
+            <PauseIcon v-if="isCurrentSong(song) && isPlaying" class="h-5 w-5" />
+            <PlayIcon v-else class="h-5 w-5" />
+          </button>
         </td>
         <td class="p-3 border-b">
-          <div class="flex items-center gap-2">
-            <button v-if="!isDummySong(song)" 
-                    @click="emit('play-song', song)" 
-                    class="px-3 py-1 bg-emerald-600 text-white rounded hover:bg-emerald-700 transition-colors flex items-center justify-center">
-              <PauseIcon v-if="isCurrentSong(song) && isPlaying" class="h-5 w-5" />
-              <PlayIcon v-else class="h-5 w-5" />
-            </button>
-            <button @click="emit('delete-song', song.id)" 
-                    class="w-20 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition-colors flex items-center justify-center">
-              <TrashIcon v-if="songToDelete === song.id" class="h-5 w-5" />
-              <span v-else>Delete</span>
-            </button>
+          <div class="flex flex-col">
+            <span class="font-medium">{{ song.title }}</span>
+            <span class="text-sm text-gray-600">{{ song.artist }}</span>
           </div>
+        </td>
+        <td class="p-3 border-b">
+          <div class="flex flex-col">
+            <span class="text-sm">{{ song.metadata?.genre || 'Unknown Label' }}</span>
+            <span class="text-sm text-gray-600">{{ song.album || 'Unknown Album' }}</span>
+          </div>
+        </td>
+        <td class="p-3 border-b text-sm text-gray-600">
+          {{ song.metadata?.duration ? `${Math.floor(song.metadata.duration / 60)}:${Math.floor(song.metadata.duration % 60).toString().padStart(2, '0')}` : '-' }}
+        </td>
+        <td class="p-3 border-b">
+          <button @click="emit('delete-song', song.id)" 
+                  :class="[
+                    'px-3 py-2 rounded flex items-center justify-center transition-colors',
+                    songToDelete === song.id 
+                      ? 'bg-red-600 text-white hover:bg-red-700' 
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  ]">
+            <TrashIcon class="h-5 w-5" />
+          </button>
         </td>
       </tr>
     </tbody>
