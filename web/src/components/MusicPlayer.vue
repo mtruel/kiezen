@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, onUnmounted, nextTick } from 'vue'
+import { ref, computed, watch, onUnmounted, nextTick, onMounted } from 'vue'
 import { type Song } from '../api'
 import { 
   BackwardIcon, 
@@ -100,6 +100,44 @@ watch(() => props.isPlaying, (newValue) => {
   }
 })
 
+// Load saved volume on component mount
+const loadSavedVolume = () => {
+  try {
+    const savedVolume = localStorage.getItem('musicPlayerVolume')
+    const savedMute = localStorage.getItem('musicPlayerMuted')
+    
+    if (savedVolume !== null) {
+      const parsedVolume = parseFloat(savedVolume)
+      // Ensure the volume is between 0 and 1
+      if (!isNaN(parsedVolume) && parsedVolume >= 0 && parsedVolume <= 1) {
+        volume.value = parsedVolume
+      }
+    }
+    
+    if (savedMute !== null) {
+      isMuted.value = savedMute === 'true'
+    }
+  } catch (error) {
+    console.warn('Failed to load saved volume settings:', error)
+  }
+}
+
+// Apply volume settings to audio element
+const applyVolumeSettings = () => {
+  if (audio.value) {
+    audio.value.volume = volume.value
+    audio.value.muted = isMuted.value
+  }
+}
+
+// Watch for audio element creation
+watch(audio, (newAudio) => {
+  if (newAudio) {
+    applyVolumeSettings()
+  }
+})
+
+// Save volume when it changes
 watch(volume, (val) => {
   if (audio.value) {
     audio.value.volume = val
@@ -110,22 +148,39 @@ watch(volume, (val) => {
       isMuted.value = false
       audio.value.muted = false
     }
-  }
-})
-
-watch(isMuted, (val) => {
-  if (audio.value) {
-    audio.value.muted = val
-    if (val) {
-      audio.value.volume = 0
-    } else {
-      audio.value.volume = volume.value || 1
+    try {
+      localStorage.setItem('musicPlayerVolume', val.toString())
+    } catch (error) {
+      console.warn('Failed to save volume setting:', error)
     }
   }
 })
 
-onUnmounted(() => {
-  cleanup()
+// Save mute state when it changes
+watch(isMuted, (val) => {
+  if (audio.value) {
+    audio.value.muted = val
+  }
+  try {
+    localStorage.setItem('musicPlayerMuted', val.toString())
+  } catch (error) {
+    console.warn('Failed to save mute setting:', error)
+  }
+})
+
+// Call loadSavedVolume when component is mounted
+onMounted(() => {
+  loadSavedVolume()
+})
+
+watch(() => props.isPlaying, (newValue) => {
+  if (!audio.value) return
+  
+  if (newValue) {
+    audio.value.play()
+  } else {
+    audio.value.pause()
+  }
 })
 
 const formattedTime = (time: number) => {
