@@ -24,11 +24,25 @@ export interface Playlist {
   songs: Song[]
 }
 
+export interface UploadResult {
+  uploaded_songs: Song[]
+  errors: {
+    filename: string
+    error: string
+    message: string
+    existing_song?: {
+      id: string
+      title: string
+      artist: string
+    }
+  }[]
+}
+
 export interface Api {
   getSongs(): Promise<Song[]>
   createSong(song: Omit<Song, 'id'>): Promise<Song>
   deleteSong(songId: string): Promise<void>
-  uploadFile(file: File): Promise<Song>
+  uploadFiles(files: File[]): Promise<UploadResult>
   getPlaylists(): Promise<Playlist[]>
   createPlaylist(name: string): Promise<Playlist>
   deletePlaylist(playlistId: string): Promise<void>
@@ -61,12 +75,25 @@ export const api: Api = {
     await axios.delete(`${API_BASE_URL}/api/songs/${songId}/`)
   },
 
-  async uploadFile(file: File): Promise<Song> {
+  async uploadFiles(files: File[]): Promise<UploadResult> {
     const formData = new FormData()
-    formData.append('file', file)
+    files.forEach(file => {
+      formData.append('files', file)
+    })
     const response = await axios.post(`${API_BASE_URL}/api/upload/`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
+      },
+      onUploadProgress: (progressEvent) => {
+        if (progressEvent.total) {
+          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+          // Emit progress event
+          window.dispatchEvent(new CustomEvent('upload-progress', {
+            detail: {
+              progress: percentCompleted
+            }
+          }))
+        }
       }
     })
     return response.data

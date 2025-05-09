@@ -39,7 +39,7 @@ const audioUrl = computed(() => {
     return props.song.url
   }
   if (props.song.filePath) {
-    return `http://localhost:8000/music/${props.song.filePath}`
+    return `http://localhost:8000/music/music_files/${props.song.filePath}`
   }
   return ''
 })

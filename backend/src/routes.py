@@ -4,6 +4,8 @@ from typing import List
 from . import crud, schemas, database, utils
 import os
 import shutil
+from fastapi.responses import StreamingResponse
+import asyncio
 
 router = APIRouter()
 
@@ -15,20 +17,16 @@ def get_db():
     finally:
         db.close()
 
-# File upload route
-@router.post("/upload/")
-async def upload_file(file: UploadFile = File(...), db: Session = Depends(get_db)):
+async def process_file(file: UploadFile, db: Session):
     try:
         # Validate file type
         allowed_types = ["audio/mpeg", "audio/wav", "audio/ogg", "audio/flac", "audio/mp4", "audio/aac"]
         if file.content_type not in allowed_types:
-            raise HTTPException(
-                status_code=400,
-                detail={
-                    "error": "INVALID_FILE_TYPE",
-                    "message": f"File type {file.content_type} is not supported. Supported types are: {', '.join(allowed_types)}"
-                }
-            )
+            return {
+                "filename": file.filename,
+                "error": "INVALID_FILE_TYPE",
+                "message": f"File type {file.content_type} is not supported. Supported types are: {', '.join(allowed_types)}"
+            }
 
         # Create the music files directory if it doesn't exist
         music_dir = "music_files"
@@ -46,18 +44,16 @@ async def upload_file(file: UploadFile = File(...), db: Session = Depends(get_db
         if is_duplicate:
             # Clean up the duplicate file
             os.remove(file_location)
-            raise HTTPException(
-                status_code=409,
-                detail={
-                    "error": "DUPLICATE_FILE",
-                    "message": "This file already exists in your library",
-                    "existing_song": {
-                        "id": existing_song.id,
-                        "title": existing_song.title,
-                        "artist": existing_song.artist
-                    }
+            return {
+                "filename": file.filename,
+                "error": "DUPLICATE_FILE",
+                "message": "This file already exists in your library",
+                "existing_song": {
+                    "id": existing_song.id,
+                    "title": existing_song.title,
+                    "artist": existing_song.artist
                 }
-            )
+            }
         
         # Calculate file hash
         file_hash = utils.calculate_file_hash(file_location)
@@ -66,26 +62,44 @@ async def upload_file(file: UploadFile = File(...), db: Session = Depends(get_db
         song_data = schemas.SongCreate(
             title=os.path.splitext(file.filename)[0],  # Use filename as title
             artist="Unknown",  # Default value
-            file_path=file_location,
+            file_path=file.filename,  # Store only the filename
             is_dummy=0,  # Set to 0 for uploaded files
             file_hash=file_hash  # Add the file hash
         )
         
-        return crud.create_song(db=db, song=song_data)
+        uploaded_song = crud.create_song(db=db, song=song_data)
+        return {"song": uploaded_song}
         
-    except HTTPException:
-        raise
     except Exception as e:
         # Clean up the file if it was created
         if os.path.exists(file_location):
             os.remove(file_location)
-        raise HTTPException(
-            status_code=500,
-            detail={
-                "error": "UPLOAD_FAILED",
-                "message": f"Failed to upload file: {str(e)}"
-            }
-        )
+        return {
+            "filename": file.filename,
+            "error": "UPLOAD_FAILED",
+            "message": f"Failed to upload file: {str(e)}"
+        }
+
+# File upload route
+@router.post("/upload/")
+async def upload_file(files: List[UploadFile] = File(...), db: Session = Depends(get_db)):
+    uploaded_songs = []
+    errors = []
+    
+    # Process files concurrently
+    tasks = [process_file(file, db) for file in files]
+    results = await asyncio.gather(*tasks)
+    
+    for result in results:
+        if "error" in result:
+            errors.append(result)
+        else:
+            uploaded_songs.append(result["song"])
+    
+    return {
+        "uploaded_songs": uploaded_songs,
+        "errors": errors
+    }
 
 # Song routes
 @router.post("/songs/", response_model=schemas.Song)
