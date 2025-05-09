@@ -292,11 +292,11 @@ const playFromQueue = (song: Song) => {
 </script>
 
 <template>
-  <div v-if="song" class="fixed bottom-0 left-0 right-0 bg-slate-800 text-white p-4 shadow-lg z-50">
+  <div class="fixed bottom-0 left-0 right-0 bg-slate-800 text-white p-4 shadow-lg z-50">
     <div class="max-w-[1400px] mx-auto flex items-center gap-8">
       <div class="min-w-[200px]">
-        <h3 class="text-lg font-semibold">{{ song.title }}</h3>
-        <p class="text-gray-300">{{ song.artist }}</p>
+        <h3 class="text-lg font-semibold">{{ song?.title || 'No song loaded' }}</h3>
+        <p class="text-gray-300">{{ song?.artist || 'Select a song to play' }}</p>
       </div>
 
       <audio
@@ -308,16 +308,28 @@ const playFromQueue = (song: Song) => {
       ></audio>
 
       <div class="flex-1 flex items-center gap-4">
-        <button @click="handlePrevious" class="p-2 rounded-full bg-slate-700 hover:bg-slate-600 transition-colors">
+        <button 
+          @click="handlePrevious" 
+          class="p-2 rounded-full bg-slate-700 hover:bg-slate-600 transition-colors"
+          :class="{ 'opacity-50 cursor-not-allowed': !song }"
+          :disabled="!song">
           <BackwardIcon class="h-6 w-6" />
         </button>
         
-        <button @click="togglePlay" class="p-3 rounded-full bg-slate-700 hover:bg-slate-600 transition-colors">
+        <button 
+          @click="togglePlay" 
+          class="p-3 rounded-full bg-slate-700 hover:bg-slate-600 transition-colors"
+          :class="{ 'opacity-50 cursor-not-allowed': !song }"
+          :disabled="!song">
           <PauseIcon v-if="isPlaying" class="h-8 w-8" />
           <PlayIcon v-else class="h-8 w-8" />
         </button>
 
-        <button @click="$emit('next')" class="p-2 rounded-full bg-slate-700 hover:bg-slate-600 transition-colors">
+        <button 
+          @click="$emit('next')" 
+          class="p-2 rounded-full bg-slate-700 hover:bg-slate-600 transition-colors"
+          :class="{ 'opacity-50 cursor-not-allowed': !song }"
+          :disabled="!song">
           <ForwardIcon class="h-6 w-6" />
         </button>
 
@@ -331,6 +343,7 @@ const playFromQueue = (song: Song) => {
               :value="currentTime"
               @input="seek"
               class="absolute inset-0 w-full h-8 opacity-0 cursor-pointer z-10"
+              :disabled="!song"
             >
             <div class="w-full h-1 bg-gray-600 rounded-lg relative">
               <div class="h-full bg-white rounded-lg transition-all duration-100" :style="{ width: `${(currentTime / duration) * 100}%` }"></div>
@@ -341,13 +354,19 @@ const playFromQueue = (song: Song) => {
         </div>
 
         <!-- Queue button -->
-        <button @click="showQueue = !showQueue" class="p-2 flex items-center justify-center rounded-full bg-slate-700 hover:bg-slate-600 transition-colors">
+        <button 
+          @click="showQueue = !showQueue" 
+          class="p-2 flex items-center justify-center rounded-full bg-slate-700 hover:bg-slate-600 transition-colors"
+          :class="{ 'opacity-50 cursor-not-allowed': !song }"
+          :disabled="!song">
           <QueueListIcon class="h-6 w-6" />
         </button>
 
         <!-- Volume control -->
         <div class="flex items-center gap-2 ml-auto">
-          <button @click="toggleMute" class="p-2 flex items-center justify-center rounded-full bg-slate-700 hover:bg-slate-600 transition-colors">
+          <button 
+            @click="toggleMute" 
+            class="p-2 flex items-center justify-center rounded-full bg-slate-700 hover:bg-slate-600 transition-colors">
             <SpeakerXMarkIcon v-if="isMuted || volume === 0" class="h-6 w-6" />
             <SpeakerWaveIcon v-else class="h-6 w-6" />
           </button>

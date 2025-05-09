@@ -5,14 +5,15 @@ import AddSongForm from './components/AddSongForm.vue'
 import MusicPlayer from './components/MusicPlayer.vue'
 import { api, type Song } from './api'
 import { usePlayerStore } from './stores/playerStore'
+import { useSongStore } from './stores/songStore'
 
 const activeTab = ref('songs')
 const songListRef = ref<InstanceType<typeof SongList> | null>(null)
-const songs = ref<Song[]>([])
 const showDebug = ref(false)
 const consoleMessages = ref<Array<{ type: string; message: string; timestamp: string; source?: string }>>([])
 
 const playerStore = usePlayerStore()
+const songStore = useSongStore()
 
 // Override console methods to capture messages
 const originalConsole = {
@@ -120,25 +121,18 @@ const clearConsole = () => {
 // Debug information
 const debugInfo = computed(() => ({
   currentSong: playerStore.currentSong,
-  totalSongs: songs.value.length,
+  totalSongs: songStore.songs.length,
   activeTab: activeTab.value,
   timestamp: new Date().toISOString()
 }))
 
 const fetchSongs = async () => {
-  songs.value = await api.getSongs()
-  playerStore.setQueue(songs.value)
+  await songStore.fetchSongs()
+  playerStore.setQueue(songStore.songs)
 }
 
-const handleSongAdded = async () => {
-  const newSongs = await api.getSongs()
-  songs.value = newSongs
-  // Only add the new song to the queue if it's not already there
-  const lastSong = newSongs[0] // New songs are added at the beginning
-  if (lastSong && !playerStore.queue.some(song => song.id === lastSong.id)) {
-    playerStore.queue.push(lastSong)
-  }
-  songListRef.value?.fetchSongs()
+const handleSongAdded = () => {
+  fetchSongs()
 }
 
 const handleSongDeleted = (songId: string) => {

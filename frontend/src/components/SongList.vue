@@ -5,6 +5,7 @@ import { useErrorHandler } from '../composables/useErrorHandler'
 import { useLoadingState } from '../composables/useLoadingState'
 import SongTable from './songs/SongTable.vue'
 import ErrorMessage from './common/ErrorMessage.vue'
+import { useSongStore } from '../stores/songStore'
 
 const props = defineProps<{
   currentSong: Song | null
@@ -18,14 +19,14 @@ const emit = defineEmits<{
 
 const { error, handleError, clearError } = useErrorHandler()
 const { isLoading, withLoading } = useLoadingState()
-const songs = ref<Song[]>([])
+const songStore = useSongStore()
 const songToDelete = ref<string | null>(null)
 const deleteTimeout = ref<number | null>(null)
 
 const fetchSongs = async () => {
   try {
     clearError()
-    songs.value = await withLoading(() => api.getSongs())
+    await withLoading(() => songStore.fetchSongs())
   } catch (err) {
     handleError(err, 'Failed to load songs. Please check your connection and try again.')
   }
@@ -35,7 +36,7 @@ const deleteSong = async (songId: string) => {
   try {
     clearError()
     // First check if the song exists
-    const song = songs.value.find(s => s.id === songId)
+    const song = songStore.songs.find(s => s.id === songId)
     if (!song) {
       handleError(new Error('Song not found'), 'Song not found. It may have been already deleted.')
       return
@@ -106,7 +107,7 @@ onMounted(fetchSongs)
     
     <SongTable 
       v-else-if="!error"
-      :songs="songs"
+      :songs="songStore.songs"
       :song-to-delete="songToDelete"
       :current-song="currentSong"
       :is-playing="isPlaying"
