@@ -268,14 +268,20 @@ const playFromQueue = (song: Song) => {
 
         <div class="flex-1 flex items-center gap-2">
           <span class="text-sm text-gray-400">{{ formattedTime(currentTime) }}</span>
-          <input
-            type="range"
-            :min="0"
-            :max="duration"
-            :value="currentTime"
-            @input="seek"
-            class="flex-1 h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white"
-          >
+          <div class="flex-1 h-8 flex items-center relative">
+            <input
+              type="range"
+              :min="0"
+              :max="duration"
+              :value="currentTime"
+              @input="seek"
+              class="absolute inset-0 w-full h-8 opacity-0 cursor-pointer z-10"
+            >
+            <div class="w-full h-1 bg-gray-600 rounded-lg relative">
+              <div class="h-full bg-white rounded-lg transition-all duration-100" :style="{ width: `${(currentTime / duration) * 100}%` }"></div>
+              <div class="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-lg" :style="{ left: `${(currentTime / duration) * 100}%`, transform: 'translate(-50%, -50%)' }"></div>
+            </div>
+          </div>
           <span class="text-sm text-gray-400">{{ formattedTime(duration) }}</span>
         </div>
 
@@ -290,15 +296,21 @@ const playFromQueue = (song: Song) => {
             <SpeakerXMarkIcon v-if="isMuted || volume === 0" class="h-6 w-6" />
             <SpeakerWaveIcon v-else class="h-6 w-6" />
           </button>
-          <input
-            type="range"
-            min="0"
-            max="1"
-            step="0.01"
-            :value="isMuted ? 0 : volume"
-            @input="handleVolumeInput"
-            class="h-1 w-24 bg-gray-600 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white"
-          >
+          <div class="h-8 w-24 flex items-center relative">
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.01"
+              :value="isMuted ? 0 : volume"
+              @input="handleVolumeInput"
+              class="absolute inset-0 w-full h-8 opacity-0 cursor-pointer z-10"
+            >
+            <div class="w-full h-1 bg-gray-600 rounded-lg relative">
+              <div class="h-full bg-white rounded-lg transition-all duration-100" :style="{ width: `${(isMuted ? 0 : volume) * 100}%` }"></div>
+              <div class="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-lg" :style="{ left: `${(isMuted ? 0 : volume) * 100}%`, transform: 'translate(-50%, -50%)' }"></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
