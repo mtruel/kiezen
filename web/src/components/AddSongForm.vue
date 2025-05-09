@@ -12,10 +12,4 @@ const emit = defineEmits<{
     <FileUploadForm @song-added="emit('song-added')" />
     <DummySongForm @song-added="emit('song-added')" />
   </div>
-</template>
-
-<script lang="ts">
-export default {
-  name: 'AddSongForm'
-}
-</script> 
+</template> 

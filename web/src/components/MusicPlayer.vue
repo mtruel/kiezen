@@ -409,10 +409,4 @@ const playFromQueue = (song: Song) => {
 
 <style scoped>
 /* Remove all custom CSS as we're using Tailwind now */
-</style>
-
-<script lang="ts">
-export default {
-  name: 'MusicPlayer'
-}
-</script> 
+</style> 

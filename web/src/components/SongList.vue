@@ -1,5 +1,4 @@
-<script lang="ts">
-import { defineComponent, defineEmits, PropType } from 'vue'
+<script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { api, type Song } from '../api'
 import { useErrorHandler } from '../composables/useErrorHandler'
@@ -7,109 +6,88 @@ import { useLoadingState } from '../composables/useLoadingState'
 import SongTable from './songs/SongTable.vue'
 import ErrorMessage from './common/ErrorMessage.vue'
 
-export default defineComponent({
-  name: 'SongList',
-  components: {
-    SongTable,
-    ErrorMessage
-  },
-  props: {
-    currentSong: {
-      type: Object as PropType<Song | null>,
-      default: null
-    },
-    isPlaying: {
-      type: Boolean,
-      default: false
-    }
-  },
-  emits: ['play-song', 'song-deleted'],
-  setup(props, { emit }) {
-    const { error, handleError, clearError } = useErrorHandler()
-    const { isLoading, withLoading } = useLoadingState()
-    const songs = ref<Song[]>([])
-    const songToDelete = ref<string | null>(null)
-    const deleteTimeout = ref<number | null>(null)
+const props = defineProps<{
+  currentSong: Song | null
+  isPlaying: boolean
+}>()
 
-    const fetchSongs = async () => {
-      try {
-        clearError()
-        songs.value = await withLoading(() => api.getSongs())
-      } catch (err) {
-        handleError(err, 'Failed to load songs. Please check your connection and try again.')
-      }
-    }
+const emit = defineEmits<{
+  (e: 'play-song', song: Song): void
+  (e: 'song-deleted', songId: string): void
+}>()
 
-    const deleteSong = async (songId: string) => {
-      try {
-        clearError()
-        // First check if the song exists
-        const song = songs.value.find(s => s.id === songId)
-        if (!song) {
-          handleError(new Error('Song not found'), 'Song not found. It may have been already deleted.')
-          return
-        }
+const { error, handleError, clearError } = useErrorHandler()
+const { isLoading, withLoading } = useLoadingState()
+const songs = ref<Song[]>([])
+const songToDelete = ref<string | null>(null)
+const deleteTimeout = ref<number | null>(null)
 
-        // Always emit the deletion event to update the queue
-        emit('song-deleted', songId)
+const fetchSongs = async () => {
+  try {
+    clearError()
+    songs.value = await withLoading(() => api.getSongs())
+  } catch (err) {
+    handleError(err, 'Failed to load songs. Please check your connection and try again.')
+  }
+}
 
-        // Then proceed with the deletion
-        await withLoading(() => api.deleteSong(songId))
-        await fetchSongs()
-        songToDelete.value = null
-        if (deleteTimeout.value) {
-          clearTimeout(deleteTimeout.value)
-          deleteTimeout.value = null
-        }
-      } catch (err: any) {
-        console.error('Delete error:', err)
-        if (err.response?.data?.detail) {
-          handleError(err, err.response.data.detail)
-        } else if (err.response?.status === 404) {
-          handleError(err, 'Song not found. It may have been already deleted.')
-        } else {
-          handleError(err, `Failed to delete song: ${err.message || 'Unknown error'}`)
-        }
-      }
+const deleteSong = async (songId: string) => {
+  try {
+    clearError()
+    // First check if the song exists
+    const song = songs.value.find(s => s.id === songId)
+    if (!song) {
+      handleError(new Error('Song not found'), 'Song not found. It may have been already deleted.')
+      return
     }
 
-    const handleDeleteClick = (songId: string) => {
-      if (songToDelete.value === songId) {
-        deleteSong(songId)
-      } else {
-        songToDelete.value = songId
-        if (deleteTimeout.value) {
-          clearTimeout(deleteTimeout.value)
-        }
-        deleteTimeout.value = window.setTimeout(() => {
-          songToDelete.value = null
-          deleteTimeout.value = null
-        }, 3000)
-      }
+    // Always emit the deletion event to update the queue
+    emit('song-deleted', songId)
+
+    // Then proceed with the deletion
+    await withLoading(() => api.deleteSong(songId))
+    await fetchSongs()
+    songToDelete.value = null
+    if (deleteTimeout.value) {
+      clearTimeout(deleteTimeout.value)
+      deleteTimeout.value = null
     }
-
-    const playSong = (song: Song) => {
-      emit('play-song', song)
-    }
-
-    const isDummySong = (song: Song) => {
-      return song.isDummy === 1
-    }
-
-    onMounted(fetchSongs)
-
-    return {
-      error,
-      isLoading,
-      songs,
-      songToDelete,
-      fetchSongs,
-      handleDeleteClick,
-      playSong,
-      isDummySong
+  } catch (err: any) {
+    console.error('Delete error:', err)
+    if (err.response?.data?.detail) {
+      handleError(err, err.response.data.detail)
+    } else if (err.response?.status === 404) {
+      handleError(err, 'Song not found. It may have been already deleted.')
+    } else {
+      handleError(err, `Failed to delete song: ${err.message || 'Unknown error'}`)
     }
   }
-})
+}
+
+const handleDeleteClick = (songId: string) => {
+  if (songToDelete.value === songId) {
+    deleteSong(songId)
+  } else {
+    songToDelete.value = songId
+    if (deleteTimeout.value) {
+      clearTimeout(deleteTimeout.value)
+    }
+    deleteTimeout.value = window.setTimeout(() => {
+      songToDelete.value = null
+      deleteTimeout.value = null
+    }, 3000)
+  }
+}
+
+const playSong = (song: Song) => {
+  emit('play-song', song)
+}
+
+const isDummySong = (song: Song) => {
+  return song.isDummy === 1
+}
+
+onMounted(fetchSongs)
 </script>
 
 <template>

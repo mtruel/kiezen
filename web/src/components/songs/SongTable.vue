@@ -82,10 +82,4 @@ const isCurrentSong = (song: Song) => {
       </tr>
     </tbody>
   </table>
-</template>
-
-<script lang="ts">
-export default {
-  name: 'SongTable'
-}
-</script> 
+</template> 

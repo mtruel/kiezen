@@ -45,12 +45,6 @@ const deletePlaylist = async (playlistId: string) => {
 onMounted(fetchPlaylists)
 </script>
 
-<script lang="ts">
-export default {
-  name: 'PlaylistList'
-}
-</script>
-
 <template>
   <div class="mt-8">
     <h2 class="text-2xl font-bold mb-4">Playlists</h2>
