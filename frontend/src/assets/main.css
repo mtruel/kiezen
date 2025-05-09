@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import './base.css';
+
+@layer components {
+  .link {
+    @apply text-emerald-600 hover:bg-emerald-50 transition-colors duration-200 px-1 rounded;
+  }
+}
+
+/* Remove all custom CSS below */
