@@ -4,7 +4,7 @@ This is the backend service for the Kiezen DJ application, built with FastAPI.
 
 ## Features
 
-- RESTful API for managing songs and playlists
+- RESTful API for managing songs
 - SQLite database for data persistence
 - File storage for music files
 - CORS support for frontend integration
@@ -64,14 +64,3 @@ Once the server is running, you can access:
 - `GET /api/songs/{song_id}` - Get a specific song
 - `PUT /api/songs/{song_id}` - Update a song
 - `DELETE /api/songs/{song_id}` - Delete a song
-
-### Playlists
-- `GET /api/playlists/` - List all playlists
-- `POST /api/playlists/` - Create a new playlist
-- `GET /api/playlists/{playlist_id}` - Get a specific playlist
-- `PUT /api/playlists/{playlist_id}` - Update a playlist
-- `DELETE /api/playlists/{playlist_id}` - Delete a playlist
-
-### Playlist-Song Relationships
-- `POST /api/playlists/{playlist_id}/songs/{song_id}` - Add a song to a playlist
-- `DELETE /api/playlists/{playlist_id}/songs/{song_id}` - Remove a song from a playlist

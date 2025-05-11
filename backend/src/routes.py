@@ -1,21 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, File, UploadFile
 from sqlalchemy.orm import Session
 from typing import List
-from . import crud, schemas, database, utils
 import os
 import shutil
-from fastapi.responses import StreamingResponse
 import asyncio
+from . import crud, models, schemas, utils
+from .database import get_db
 
 router = APIRouter()
-
-# Dependency
-def get_db():
-    db = database.SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 async def process_file(file: UploadFile, db: Session):
     try:

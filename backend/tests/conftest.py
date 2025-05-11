@@ -58,15 +58,4 @@ def test_song(client):
             "is_dummy": False
         }
     )
-    return response.json()
-
-@pytest.fixture
-def test_playlist(db_session):
-    playlist = models.Playlist(
-        name="Test Playlist",
-        description="Test Description"
-    )
-    db_session.add(playlist)
-    db_session.commit()
-    db_session.refresh(playlist)
-    return playlist 
+    return response.json() 

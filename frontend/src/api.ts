@@ -18,12 +18,6 @@ export interface Song {
   }
 }
 
-export interface Playlist {
-  id: string
-  name: string
-  songs: Song[]
-}
-
 export interface UploadResult {
   uploaded_songs: Song[]
   errors: {
@@ -43,9 +37,6 @@ export interface Api {
   createSong(song: Omit<Song, 'id'>): Promise<Song>
   deleteSong(songId: string): Promise<void>
   uploadFiles(files: File[]): Promise<UploadResult>
-  getPlaylists(): Promise<Playlist[]>
-  createPlaylist(name: string): Promise<Playlist>
-  deletePlaylist(playlistId: string): Promise<void>
 }
 
 export const api: Api = {
@@ -57,16 +48,24 @@ export const api: Api = {
       isDummy: song.is_dummy,
       filePath: song.file_path,
       url: song.link,  // Map link to url for frontend
-      link: song.link  // Keep original link field
+      link: song.link,  // Keep original link field
+      metadata: {
+        duration: song.duration,
+        genre: song.genre,
+        year: song.year
+      }
     }))
   },
 
   async createSong(song: Omit<Song, 'id'>): Promise<Song> {
-    const { isDummy, url, ...rest } = song
+    const { isDummy, url, metadata, ...rest } = song
     const response = await axios.post(`${API_BASE_URL}/api/songs/`, { 
       ...rest, 
       is_dummy: isDummy,
-      link: url  // Map url to link for backend
+      link: url,  // Map url to link for backend
+      duration: metadata?.duration,
+      genre: metadata?.genre,
+      year: metadata?.year
     })
     return response.data
   },
@@ -96,21 +95,20 @@ export const api: Api = {
         }
       }
     })
-    return response.data
-  },
-
-  // Playlists
-  async getPlaylists(): Promise<Playlist[]> {
-    const response = await axios.get(`${API_BASE_URL}/api/playlists/`)
-    return response.data
-  },
-
-  async createPlaylist(name: string): Promise<Playlist> {
-    const response = await axios.post(`${API_BASE_URL}/api/playlists/`, { name })
-    return response.data
-  },
-
-  async deletePlaylist(playlistId: string): Promise<void> {
-    await axios.delete(`${API_BASE_URL}/api/playlists/${playlistId}/`)
+    return {
+      ...response.data,
+      uploaded_songs: response.data.uploaded_songs.map((song: any) => ({
+        ...song,
+        isDummy: song.is_dummy,
+        filePath: song.file_path,
+        url: song.link,
+        link: song.link,
+        metadata: {
+          duration: song.duration,
+          genre: song.genre,
+          year: song.year
+        }
+      }))
+    }
   }
 } 
