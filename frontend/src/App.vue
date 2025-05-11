@@ -1,19 +1,23 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
-import SongList from './components/SongList.vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import AddSongForm from './components/AddSongForm.vue'
 import MusicPlayer from './components/MusicPlayer.vue'
+import SongsManager from './components/SongsManager.vue'
 import { api, type Song } from './api'
 import { usePlayerStore } from './stores/playerStore'
 import { useSongStore } from './stores/songStore'
 
 const activeTab = ref('songs')
-const songListRef = ref<InstanceType<typeof SongList> | null>(null)
 const showDebug = ref(false)
 const consoleMessages = ref<Array<{ type: string; message: string; timestamp: string; source?: string }>>([])
 
 const playerStore = usePlayerStore()
 const songStore = useSongStore()
+const songsManagerRef = ref<InstanceType<typeof SongsManager> | null>(null)
+
+// Ensure proper type handling for currentSong and isPlaying
+const currentSong = computed<Song | null>(() => playerStore.currentSong || null)
+const isPlaying = computed(() => playerStore.isPlaying)
 
 // Override console methods to capture messages
 const originalConsole = {
@@ -183,10 +187,10 @@ fetchSongs()
           <AddSongForm @song-added="handleSongAdded" />
         </div>
         <div class="content-column lg:col-span-2">
-          <SongList 
-            ref="songListRef" 
-            :current-song="playerStore.currentSong"
-            :is-playing="playerStore.isPlaying"
+          <SongsManager 
+            ref="songsManagerRef" 
+            :current-song="currentSong"
+            :is-playing="isPlaying"
             @play-song="playSong"
             @song-deleted="handleSongDeleted"
           />
@@ -195,8 +199,9 @@ fetchSongs()
     </main>
 
     <MusicPlayer 
-      :song="playerStore.currentSong" 
-      v-model:is-playing="playerStore.isPlaying"
+      :song="currentSong" 
+      :is-playing="playerStore.isPlaying"
+      @update:is-playing="playerStore.togglePlay"
       @next="playerStore.playNext"
       @previous="playerStore.playPrevious"
     />

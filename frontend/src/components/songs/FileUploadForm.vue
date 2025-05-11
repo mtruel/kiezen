@@ -219,6 +219,15 @@ onUnmounted(() => {
       :error="error"
       :success="success"
     />
+
+    <!-- Upload button -->
+    <button
+      @click="submitUploadForm"
+      :disabled="!selectedFiles.length || isUploading"
+      class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed mb-6"
+    >
+      {{ isUploading ? 'Uploading...' : 'Upload Songs' }}
+    </button>
     
     <!-- File input -->
     <div class="mb-6">
@@ -320,15 +329,6 @@ onUnmounted(() => {
         </div>
       </div>
     </div>
-
-    <!-- Upload button -->
-    <button
-      @click="submitUploadForm"
-      :disabled="!selectedFiles.length || isUploading"
-      class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed mt-6"
-    >
-      {{ isUploading ? 'Uploading...' : 'Upload Songs' }}
-    </button>
   </div>
 </template>
 

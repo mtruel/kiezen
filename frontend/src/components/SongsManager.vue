@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue'
 import { api, type Song } from '../api'
 import { useErrorHandler } from '../composables/useErrorHandler'
 import { useLoadingState } from '../composables/useLoadingState'
-import SongTable from './songs/SongTable.vue'
+import SongsTable from './songs/SongsTable.vue'
 import ErrorMessage from './common/ErrorMessage.vue'
 import { useSongStore } from '../stores/songStore'
 
@@ -105,7 +105,7 @@ onMounted(fetchSongs)
       Loading songs...
     </div>
     
-    <SongTable 
+    <SongsTable 
       v-else-if="!error"
       :songs="songStore.songs"
       :song-to-delete="songToDelete"

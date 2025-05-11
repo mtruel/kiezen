@@ -9,7 +9,10 @@ import {
   SpeakerWaveIcon, 
   SpeakerXMarkIcon,
   QueueListIcon,
-  XMarkIcon
+  XMarkIcon,
+  ChevronUpIcon,
+  ChevronDownIcon,
+  TagIcon
 } from '@heroicons/vue/24/solid'
 import { usePlayerStore } from '../stores/playerStore'
 
@@ -26,6 +29,7 @@ const emit = defineEmits<{
 
 const playerStore = usePlayerStore()
 const showQueue = ref(false)
+const showTagPanel = ref(false)
 const audio = ref<HTMLAudioElement | null>(null)
 const currentTime = ref(0)
 const duration = ref(0)
@@ -292,11 +296,166 @@ const playFromQueue = (song: Song) => {
 </script>
 
 <template>
-  <div class="fixed bottom-0 left-0 right-0 bg-slate-800 text-white p-4 shadow-lg z-50">
+  <div class="fixed bottom-0 left-0 right-0">
+    <!-- Tag Edition Panel -->
+    <div v-if="showTagPanel" class="bg-slate-900 border-t border-slate-700">
+      <div class="max-w-[1400px] mx-auto">
+        <div class="p-4 border-b border-slate-700 flex justify-between items-center">
+          <h3 class="text-lg font-semibold">Edit Metadata</h3>
+          <button @click="showTagPanel = false" class="p-1 hover:bg-slate-700 rounded-full transition-colors">
+            <XMarkIcon class="h-5 w-5" />
+          </button>
+        </div>
+        <div class="p-4">
+          <div class="grid grid-cols-2 gap-6">
+            <!-- Left Column -->
+            <div class="space-y-4">
+              <!-- Basic Info -->
+              <div class="space-y-4">
+                <h4 class="text-sm font-medium text-gray-300">Basic Information</h4>
+                <div class="space-y-3">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">Title</label>
+                    <input 
+                      type="text" 
+                      class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      :value="song?.title"
+                      placeholder="Song title"
+                    >
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">Artist</label>
+                    <input 
+                      type="text" 
+                      class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      :value="song?.artist"
+                      placeholder="Artist name"
+                    >
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">Album</label>
+                    <input 
+                      type="text" 
+                      class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      :value="song?.album"
+                      placeholder="Album name"
+                    >
+                  </div>
+                </div>
+              </div>
+
+              <!-- Additional Info -->
+              <div class="space-y-4">
+                <h4 class="text-sm font-medium text-gray-300">Additional Information</h4>
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">Year</label>
+                    <input 
+                      type="number" 
+                      class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      :value="song?.year"
+                      placeholder="YYYY"
+                    >
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">Track Number</label>
+                    <input 
+                      type="number" 
+                      class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      :value="song?.trackNumber"
+                      placeholder="#"
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="space-y-4">
+              <!-- Tags Section -->
+              <div class="space-y-4">
+                <h4 class="text-sm font-medium text-gray-300">Tags</h4>
+                <div class="space-y-4">
+                  <!-- Genre Tags -->
+                  <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-2">Genre</label>
+                    <div class="flex flex-wrap gap-2">
+                      <span class="px-2 py-1 bg-blue-600/20 text-blue-300 rounded-full text-sm">Rock</span>
+                      <span class="px-2 py-1 bg-blue-600/20 text-blue-300 rounded-full text-sm">Alternative</span>
+                      <button class="px-2 py-1 bg-slate-700 hover:bg-slate-600 rounded-full text-sm text-gray-300">+ Add</button>
+                    </div>
+                  </div>
+
+                  <!-- Mood Tags -->
+                  <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-2">Mood</label>
+                    <div class="flex flex-wrap gap-2">
+                      <span class="px-2 py-1 bg-purple-600/20 text-purple-300 rounded-full text-sm">Energetic</span>
+                      <span class="px-2 py-1 bg-purple-600/20 text-purple-300 rounded-full text-sm">Upbeat</span>
+                      <button class="px-2 py-1 bg-slate-700 hover:bg-slate-600 rounded-full text-sm text-gray-300">+ Add</button>
+                    </div>
+                  </div>
+
+                  <!-- Custom Tags -->
+                  <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-2">Custom Tags</label>
+                    <div class="flex flex-wrap gap-2">
+                      <span class="px-2 py-1 bg-green-600/20 text-green-300 rounded-full text-sm">Favorite</span>
+                      <span class="px-2 py-1 bg-green-600/20 text-green-300 rounded-full text-sm">Workout</span>
+                      <button class="px-2 py-1 bg-slate-700 hover:bg-slate-600 rounded-full text-sm text-gray-300">+ Add</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Comments -->
+              <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-400">Comments</label>
+                <textarea 
+                  class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none h-24"
+                  placeholder="Add your notes about this song..."
+                ></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="mt-6 flex justify-end gap-3">
+            <button class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm font-medium transition-colors">
+              Cancel
+            </button>
+            <button class="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-sm font-medium transition-colors">
+              Save Changes
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Player -->
+    <div class="bg-slate-800 text-white p-4 shadow-lg">
     <div class="max-w-[1400px] mx-auto flex items-center gap-8">
-      <div class="min-w-[200px]">
+        <div class="min-w-[200px] flex items-center gap-4">
+          <!-- Tag button -->
+          <button 
+            @click="showTagPanel = !showTagPanel" 
+            class="p-2 flex items-center justify-center rounded-full transition-colors"
+            :class="{ 
+              'opacity-50 cursor-not-allowed': !song,
+              'bg-blue-600 hover:bg-blue-500': showTagPanel,
+              'bg-slate-700 hover:bg-slate-600': !showTagPanel
+            }"
+            :disabled="!song">
+            <div class="flex items-center gap-1">
+              <TagIcon class="h-6 w-6" />
+              <ChevronUpIcon v-if="showTagPanel" class="h-4 w-4" />
+              <ChevronDownIcon v-else class="h-4 w-4" />
+            </div>
+          </button>
+          <div>
         <h3 class="text-lg font-semibold">{{ song?.title || 'No song loaded' }}</h3>
         <p class="text-gray-300">{{ song?.artist || 'Select a song to play' }}</p>
+          </div>
       </div>
 
       <audio
@@ -419,6 +578,7 @@ const playFromQueue = (song: Song) => {
                     class="p-1 hover:bg-slate-600 rounded-full transition-colors">
               <XMarkIcon class="h-4 w-4" />
             </button>
+            </div>
           </div>
         </div>
       </div>
