@@ -43,64 +43,79 @@ const audioUrl = computed(() => {
     return props.song.url
   }
   if (props.song.filePath) {
-    return `http://localhost:8000/music/music_files/${props.song.filePath}`
+    return `http://localhost:8000/music/music_files/${encodeURIComponent(props.song.filePath)}`
   }
   return ''
 })
 
 const cleanup = () => {
-  if (audio.value) {
+  if (!audio.value) return
+  try {
     audio.value.pause()
     audio.value.src = ''
     audio.value.load()
     audio.value.currentTime = 0
     duration.value = 0
     currentTime.value = 0
+  } catch (error) {
+    console.warn('Error during audio cleanup:', error)
   }
 }
 
-watch(() => props.song, (newSong, oldSong) => {
+// Add a function to handle song loading and playing
+const loadAndPlaySong = async () => {
+  if (!audio.value || !props.song) return
+  
+  try {
+    // First cleanup any existing audio
+    cleanup()
+    
+    // Set the new source and load it
+    audio.value.src = audioUrl.value
+    await audio.value.load()
+    
+    // If we're supposed to be playing, start playback
+    if (props.isPlaying) {
+      await audio.value.play()
+    }
+  } catch (error) {
+    console.error('Error loading/playing song:', error)
+    emit('update:isPlaying', false)
+  }
+}
+
+watch(() => props.song, async (newSong, oldSong) => {
   if (!newSong) {
     cleanup()
     return
   }
   if (oldSong && newSong && oldSong.id !== newSong.id) {
-    cleanup()
-  }
-  if (newSong) {
-    nextTick(() => {
-      if (audio.value) {
-        audio.value.play().then(() => {
-          emit('update:isPlaying', true)
-        }).catch(error => {
-          console.error('Error playing audio:', error)
-        })
-      }
-    })
+    await loadAndPlaySong()
   }
 })
 
-watch(() => audioUrl.value, (newUrl) => {
-  if (newUrl && audio.value) {
-    nextTick(() => {
-      if (audio.value) {
-        audio.value.play().then(() => {
-          emit('update:isPlaying', true)
-        }).catch(error => {
-          console.error('Error playing audio:', error)
-        })
-      }
-    })
+watch(() => audioUrl.value, async (newUrl) => {
+  if (newUrl) {
+    await loadAndPlaySong()
   }
 })
 
-watch(() => props.isPlaying, (newValue) => {
+watch(() => props.isPlaying, async (newValue) => {
   if (!audio.value) return
   
-  if (newValue) {
-    audio.value.play()
-  } else {
-    audio.value.pause()
+  try {
+    if (newValue) {
+      // If we're starting playback, ensure the audio is loaded first
+      if (audio.value.readyState === 0) {
+        await audio.value.load()
+      }
+      await audio.value.play()
+    } else {
+      audio.value.pause()
+    }
+  } catch (error) {
+    console.error('Error toggling playback:', error)
+    emit('update:isPlaying', false)
   }
 })
 
@@ -138,6 +153,13 @@ const applyVolumeSettings = () => {
 watch(audio, (newAudio) => {
   if (newAudio) {
     applyVolumeSettings()
+    if (props.isPlaying) {
+      newAudio.load()
+      newAudio.play().catch(error => {
+        console.error('Error playing audio:', error)
+        emit('update:isPlaying', false)
+      })
+    }
   }
 })
 
@@ -175,16 +197,6 @@ watch(isMuted, (val) => {
 // Call loadSavedVolume when component is mounted
 onMounted(() => {
   loadSavedVolume()
-})
-
-watch(() => props.isPlaying, (newValue) => {
-  if (!audio.value) return
-  
-  if (newValue) {
-    audio.value.play()
-  } else {
-    audio.value.pause()
-  }
 })
 
 const formattedTime = (time: number) => {
@@ -459,8 +471,10 @@ const playFromQueue = (song: Song) => {
       </div>
 
       <audio
+        v-if="song && audioUrl"
         ref="audio"
         :src="audioUrl"
+        preload="auto"
         @timeupdate="handleTimeUpdate"
         @loadedmetadata="handleLoadedMetadata"
         @ended="handleEnded"

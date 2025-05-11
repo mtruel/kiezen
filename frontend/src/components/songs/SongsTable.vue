@@ -14,6 +14,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'play-song', song: Song): void
   (e: 'delete-song', songId: string): void
+  (e: 'load-song', song: Song): void
 }>()
 
 const playerStore = usePlayerStore()
@@ -41,6 +42,7 @@ const isCurrentSong = (song: Song) => {
     <tbody>
       <tr v-for="song in songs" :key="song.id" 
           class="hover:bg-gray-50"
+          @dblclick="!isDummySong(song) && emit('load-song', song)"
           :class="{
             'bg-emerald-50': isCurrentSong(song),
             'bg-gray-50': playerStore.isPlayed(song.id) && !isCurrentSong(song)

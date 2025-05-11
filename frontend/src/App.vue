@@ -147,8 +147,12 @@ const playSong = (song: Song) => {
   if (playerStore.currentSongId === song.id) {
     playerStore.togglePlay()
   } else {
-    playerStore.playSong(song)
+    playerStore.loadSong(song, true)
   }
+}
+
+const loadSong = (song: Song) => {
+  playerStore.loadSong(song, false)
 }
 
 // Initial fetch
@@ -193,6 +197,7 @@ fetchSongs()
             :is-playing="isPlaying"
             @play-song="playSong"
             @song-deleted="handleSongDeleted"
+            @load-song="loadSong"
           />
         </div>
       </div>

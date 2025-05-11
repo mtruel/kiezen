@@ -15,6 +15,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'play-song', song: Song): void
   (e: 'song-deleted', songId: string): void
+  (e: 'load-song', song: Song): void
 }>()
 
 const { error, handleError, clearError } = useErrorHandler()
@@ -113,6 +114,7 @@ onMounted(fetchSongs)
       :is-playing="isPlaying"
       @play-song="$emit('play-song', $event)"
       @delete-song="handleDeleteClick"
+      @load-song="$emit('load-song', $event)"
     />
   </div>
 </template>

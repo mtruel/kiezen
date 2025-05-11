@@ -34,18 +34,20 @@ export const usePlayerStore = defineStore('player', () => {
     return null
   }
 
-  function playSong(song: Song) {
+  function loadSong(song: Song, playImmediately: boolean = false) {
     currentSongId.value = song.id
-    isPlaying.value = true
-    history.value.push(song.id)
-    markAsPlayed(song.id)
+    isPlaying.value = playImmediately
+    if (playImmediately) {
+      history.value.push(song.id)
+      markAsPlayed(song.id)
+    }
   }
 
   function playNext() {
     const currentIndex = queue.value.findIndex(song => song.id === currentSongId.value)
     const nextSong = findNextValidSong(currentIndex)
     if (nextSong) {
-      playSong(nextSong)
+      loadSong(nextSong, true)
     } else {
       isPlaying.value = false
       currentSongId.value = null
@@ -59,7 +61,7 @@ export const usePlayerStore = defineStore('player', () => {
       while (prevIndex >= 0) {
         const prevSong = queue.value[prevIndex]
         if (prevSong && queue.value.some(s => s.id === prevSong.id)) {
-          playSong(prevSong)
+          loadSong(prevSong, true)
           return
         }
         prevIndex--
@@ -80,7 +82,7 @@ export const usePlayerStore = defineStore('player', () => {
       const currentIndex = queue.value.findIndex(song => song.id === songId)
       const nextSong = findNextValidSong(currentIndex)
       if (nextSong) {
-        playSong(nextSong)
+        loadSong(nextSong, true)
       } else {
         isPlaying.value = false
         currentSongId.value = null
@@ -106,7 +108,7 @@ export const usePlayerStore = defineStore('player', () => {
     shuffle,
     currentSong,
     playedHistory,
-    playSong,
+    loadSong,
     playNext,
     playPrevious,
     togglePlay,
